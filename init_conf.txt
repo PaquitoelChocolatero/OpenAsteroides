@@ -1,1 +1,1 @@
-num_asteroides num_iteraciones num_planetas semilla 
+1 1 1 1 

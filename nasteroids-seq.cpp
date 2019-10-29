@@ -37,6 +37,7 @@ void init(unsigned int seed){
 }
 
 
+
 int main(int argc, char *argv[]){
     if(argc<5){
         cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
@@ -49,6 +50,7 @@ int main(int argc, char *argv[]){
     int semilla = atoi(argv[1]);            //arg[4]=semilla
     
     ofstream init_file ("init_conf.txt");
+
     for(int i=1; i<argc; i++ ){
         init_file << argv[i] << " ";
     }
@@ -56,8 +58,7 @@ int main(int argc, char *argv[]){
     init_file.close();
 
 
-    init(2000);
+    init(semilla);
     
     return 0;
-
 }
