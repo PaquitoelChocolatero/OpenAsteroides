@@ -5,3 +5,6 @@ class Cuerpo{
         void init(unsigned int seed);
         
 };
+
+class Planeta : public Cuerpo {  
+}
