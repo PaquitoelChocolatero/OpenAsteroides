@@ -44,19 +44,18 @@ int main() {
     Planeta planetas[num_planetas];
     Asteroide asteroides[num_asteroides];
 
-    for (int i = 0;i<sizeof(cuerpos); i++){
+    for (int i = 0;i<(num_asteroides + num_planetas); i++){
         if (i<num_asteroides){
+            cout << "Inicializado asteroide " << i<<endl;
             init(semilla+i, asteroides[i]);
         }
         else {
+            cout << "Inicializado planeta" << i-num_asteroides<<endl;
             init(semilla+i, planetas[i-num_asteroides]);
         }
     }
 
-    for (int i = 0; i<sizeof(num_asteroides); i++){
+    for (int i = 0; i< num_asteroides; i++){
         cout << asteroides[i].posX << ", " <<  asteroides[i].posY << ", " << asteroides[i].masa << endl;
     }
-
-   
-
 }
