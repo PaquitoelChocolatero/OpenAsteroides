@@ -4,4 +4,4 @@ class Cuerpo{
 
         void init(unsigned int seed);
         
-}
+};
