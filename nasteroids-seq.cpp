@@ -3,6 +3,7 @@
 #include <typeinfo>
 
 
+
 using namespace std;
 
 
@@ -27,11 +28,10 @@ int main(int argc, char *argv[]){
         cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
         return -1;
     }
+    else if{
 
-    int num_asteroides = atoi(argv[1]);     //argv[1]=num_asteroides
-    int num_iteraciones = atoi(argv[1]);    //argv[2]=num_iteraciones
-    int num_planetas = atoi(argv[1]);       //arg[3]=num_planetas
-    int semilla = atoi(argv[1]);            //arg[4]=semilla
+    }
+    
     
     ofstream init_file ("init_conf.txt");
     for(int i=1; i<argc; i++ ){
