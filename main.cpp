@@ -1,3 +1,0 @@
-class Planeta : public Cuerpo {
-    
-}
