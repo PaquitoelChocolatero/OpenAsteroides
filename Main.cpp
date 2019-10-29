@@ -6,7 +6,7 @@ class Cuerpo{
     public:
         double posX, posY, masa;
 
-        //void Cuerpo(double x ,double y, double m) : posX(x) , posY(y),  masa(m){};
+        void set(double x ,double y, double m) { posX = x; posY = y; masa = m;};
         
 };
 
@@ -19,21 +19,34 @@ class Asteroide : public Cuerpo {
 };
 
 
-void init(unsigned int seed){
+void init(unsigned int seed, Cuerpo &c){
     int width = 200;
     int height = 200;
-    double mass = 10;
-    double sdm = 2;
+    double mass = 1000;
+    double sdm = 50;
 
     std::default_random_engine re{seed};
     std::uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
     std::uniform_real_distribution<double> ydist{0.0, std::nextafter(height,std::numeric_limits<double>::max())};
     std::normal_distribution<double> mdist{mass, sdm};
 
-    cout << xdist(re) << ", " << ydist(re) << ", " << mdist(re) << endl;
+   
+    c.set(xdist(re), ydist(re), mdist(re));
 
 }
 
 int main() {
-    init(2000);
+    int num_asteroides = 5;
+    int num_planetas = 1;
+
+    Cuerpo cuerpos[num_asteroides + num_planetas];
+    Planeta planetas[num_planetas];
+    Asteroide asteroides[num_asteroides];
+
+    for (int i = 0; i<20;i++){
+         init(2000+i, c);
+         cout << c.posX << ", " << c.posY << ", " << c.masa << endl;
+    }
+   
+
 }
