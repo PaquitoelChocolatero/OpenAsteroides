@@ -36,7 +36,38 @@ void init(unsigned int seed){
 
 }
 
+void simulate(Cuerpo cuerpos[]){
+    for(int i=0; i<(sizeof(a)/sizeof(*a)); i++){
+        cout << cuerpos[i]::posx << endl;
+    }
+}
 
+void atraccion(Cuerpo &c1, Cuerpo &c2){
+    double distancia=sqrt( pow( (c1.posx-c2.posx),2)+pow((c1.posx-c2.posx), 2) );
+    if(distancia>5){
+        double pendiente=(c1.posy-c2.posy)/(c1.posx - c2.posx);
+        if(pendiente>1){
+            pendiente=1;
+        }else if(pendiente<-1){
+            pendiente=-1;
+        }
+
+        double alpha = atan(pendiente);
+
+        double G = 6.665*pow(10, -11);
+        //double fuerzax = (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha) ;
+        //double fuerzay = (G*c1.masa*c2.masa)/(distancia*distancia)*sen(alpha) ;
+
+        //fuerza[0]=fuerzax, fuerza[1]=fuerzay
+        double fuerza[]{
+            (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha), 
+            (G*c1.masa*c2.masa)/(distancia*distancia)*sen(alpha)
+            };
+
+        return(  );
+    }
+  
+}
 
 int main(int argc, char *argv[]){
     if(argc<5){
