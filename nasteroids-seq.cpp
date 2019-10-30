@@ -72,6 +72,7 @@ void simulate(Cuerpo cuerpos[]){
 }
 
 //Se calcula la atraccion entre dos cuerpos y se modifican sus velocidades usando esa fuerza.
+//      NO SE MODIFICAN LAS POSICIONES: esto es para luego modificar solo las de los asteroides.
 //La idea es ejecutar esto para cada par de cuerpos O(n²-n) una vez calculado el tiempo
 void atraccion(Cuerpo &c1, Cuerpo &c2, tiempo){
     double distancia=sqrt( pow( (c1.posx-c2.posx),2)+pow((c1.posx-c2.posx), 2) );
@@ -119,9 +120,9 @@ int main(int argc, char *argv[]){
     
     //Parseo de los datos del enunciado, quizas try and catch
     int num_asteroides = atoi(argv[1]);     
-    int num_iteraciones = atoi(argv[1]);    
-    int num_planetas = atoi(argv[1]);       
-    int semilla = atoi(argv[1]);     
+    int num_iteraciones = atoi(argv[2]);    
+    int num_planetas = atoi(argv[3]);       
+    int semilla = atoi(argv[4]);     
     
     //Escribimos los argumentos en un archivo
     ofstream init_file ("init_conf.txt");
@@ -132,12 +133,29 @@ int main(int argc, char *argv[]){
     Planeta planetas[num_planetas];
     Asteroide asteroides[num_asteroides];
 
+    //Inicializacion de cada cuerpo
     for (int i = 0;i<(num_asteroides + num_planetas); i++){
         if (i<num_asteroides){
             init(semilla+i, asteroides[i], -1);
         }
         else {
            init(semilla+i, planetas[i-num_asteroides], i-num_asteroides);
+        }
+    }
+
+    //Calculo de la fuerza de atraccion entre cada planeta
+    // O(n_asteroides²-n_asteroides+n_asteroides*n_planetas)
+    for(int i=0; i<num_asteroides; i++){
+        for(int j=i+1; j<num_asteroides; j++){
+            //Si i es mayor o igual que el numero de asteroides es que ambos son planetas y no hace falta calcular la fuerza entre planetas
+            if (i<num_asteroides){
+                if(j<num_asteroides){
+                    atraccion(asteroides[i], asteroides[j]);
+                } else if(j >= num_planetas){
+                    atraccion(asteroides[i], planetas[j]);
+                }
+            }
+
         }
     }
 
