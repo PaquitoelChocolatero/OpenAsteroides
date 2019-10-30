@@ -55,7 +55,15 @@ void init(unsigned int seed, Cuerpo &c, int planeta){
     c.set(posX, posY, masa);
 }
 
-<<<<<<< HEAD:nasteroids-seq.cpp
+// Funcion para escribir en un fichero los valores iniciales
+void writeInit(int argc, char *argv[], Asteroide asteroides[], Planeta planetas[]){
+    ofstream init_file ("init_conf.txt");
+    for(int i=1; i<argc; i++ ){
+        init_file << argv[i] << " ";
+    }
+    init_file << endl;
+    init_file.close();
+}
 
 int main(int argc, char *argv[]){
     if(argc<5){
@@ -65,48 +73,22 @@ int main(int argc, char *argv[]){
 
     int num_asteroides = atoi(argv[1]);     //argv[1]=num_asteroides
     int num_iteraciones = atoi(argv[1]);    //argv[2]=num_iteraciones
-    int num_planetas = atoi(argv[1]);       //arg[3]=num_planetas
-    int semilla = atoi(argv[1]);            //arg[4]=semilla
+    int num_planetas = atoi(argv[1]);       //argv[3]=num_planetas
+    int semilla = atoi(argv[1]);            //argv[4]=semilla
     
-    ofstream init_file ("init_conf.txt");
-    for(int i=1; i<argc; i++ ){
-        init_file << argv[i] << " ";
-    }
-    init_file << endl;
-    init_file.close();
-
-
-    init(2000);
-    
-    return 0;
-
-}
-=======
-int main() {
-    int num_asteroides = 5;
-    int num_planetas = 5;
-    int semilla = 2000;
-
-    //Cuerpo cuerpos[num_asteroides + num_planetas];
     Planeta planetas[num_planetas];
     Asteroide asteroides[num_asteroides];
 
     for (int i = 0;i<(num_asteroides + num_planetas); i++){
         if (i<num_asteroides){
-            cout << "Inicializado asteroide " << i<<endl;
             init(semilla+i, asteroides[i], -1);
         }
         else {
-            cout << "Inicializado planeta" << i-num_asteroides<<endl;
-            init(semilla+i, planetas[i-num_asteroides], i-num_asteroides);
+           init(semilla+i, planetas[i-num_asteroides], i-num_asteroides);
         }
     }
 
-     for (int i = 0; i< num_asteroides; i++){
-        cout << asteroides[i].posX << ", " <<  asteroides[i].posY << ", " << asteroides[i].masa << endl;
-    }
-    for (int i = 0; i< num_planetas; i++){
-        cout << planetas[i].posX << ", " <<  planetas[i].posY << ", " << planetas[i].masa << endl;
-    }
+    writeInit(argc, argv, asteroides, planetas);    
+    return 0;
 }
->>>>>>> Random:Main.cpp
+
