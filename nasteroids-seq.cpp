@@ -8,7 +8,7 @@ class Cuerpo{
     public:
         double posx, posy, masa, vx = 0, vy = 0;
 
-        void set(double x ,double y, double m) { posX = x; posY = y; masa = m;};
+        void set(double x ,double y, double m) { posx = x; posy = y; masa = m;};
         
 };
 
@@ -21,16 +21,20 @@ class Asteroide : public Cuerpo {
 };
 
 
-void init(unsigned int seed, Cuerpo &c, int planeta){
-    int width = 200;
-    int height = 200;
-    double mass = 1000;
-    double sdm = 50;
+constexpr int tiempo = 0.1;
+constexpr double dmin = 5.0;
+constexpr int width = 200;
+constexpr int height = 200;
+constexpr int m = 10000;
+constexpr int sdm = 50;
+constexpr double G=6.67e-5;
 
+void init(unsigned int seed, Cuerpo &c, int planeta){
+    
     std::default_random_engine re{seed};
     std::uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
     std::uniform_real_distribution<double> ydist{0.0, std::nextafter(height,std::numeric_limits<double>::max())};
-    std::normal_distribution<double> mdist{mass, sdm};
+    std::normal_distribution<double> mdist{m, sdm};
     
     double posX = xdist(re);
     double posY = ydist(re);
@@ -65,16 +69,18 @@ void writeInit(int argc, char *argv[], Asteroide asteroides[], Planeta planetas[
     init_file.close();
 }
 
+/*
 void simulate(Cuerpo cuerpos[]){
     for(int i=0; i<(sizeof(a)/sizeof(*a)); i++){
-        cout << cuerpos[i]::posx << endl;
+        cout << cuerpos[i].posx << endl;
     }
 }
+*/
 
 //Se calcula la atraccion entre dos cuerpos y se modifican sus velocidades usando esa fuerza.
 //      NO SE MODIFICAN LAS POSICIONES: esto es para luego modificar solo las de los asteroides.
 //La idea es ejecutar esto para cada par de cuerpos O(n²-n) una vez calculado el tiempo
-void atraccion(Cuerpo &c1, Cuerpo &c2, tiempo){
+void atraccion(Cuerpo &c1, Cuerpo &c2){
     double distancia=sqrt( pow( (c1.posx-c2.posx),2)+pow((c1.posx-c2.posx), 2) );
     //Calculos del enunciado
     if(distancia>5){
