@@ -6,7 +6,7 @@ using namespace std;
 
 class Cuerpo{
     public:
-        double posX, posY, masa;
+        double posx, posy, masa;
 
         //void Cuerpo(double x ,double y, double m) : posX(x) , posY(y),  masa(m){};
         
@@ -42,7 +42,7 @@ void simulate(Cuerpo cuerpos[]){
     }
 }
 
-void atraccion(Cuerpo &c1, Cuerpo &c2){
+double * atraccion(Cuerpo &c1, Cuerpo &c2){
     double distancia=sqrt( pow( (c1.posx-c2.posx),2)+pow((c1.posx-c2.posx), 2) );
     if(distancia>5){
         double pendiente=(c1.posy-c2.posy)/(c1.posx - c2.posx);
@@ -61,10 +61,10 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         //fuerza[0]=fuerzax, fuerza[1]=fuerzay
         double fuerza[]{
             (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha), 
-            (G*c1.masa*c2.masa)/(distancia*distancia)*sen(alpha)
+            (G*c1.masa*c2.masa)/(distancia*distancia)*sin(alpha)
             };
 
-        return(  );
+        return fuerza ;
     }
   
 }
