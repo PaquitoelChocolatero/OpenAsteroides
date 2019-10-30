@@ -17,9 +17,14 @@ class Planeta : public Cuerpo {
 };
 
 class Asteroide : public Cuerpo {
-
+    public:
+        void Mover(int tiempo);
 };
 
+void Asteroide::Mover(int tiempo){
+    posx = posx + vx*tiempo;
+    posy = posy + vy*tiempo;
+}
 
 constexpr int tiempo = 0.1;
 constexpr double dmin = 5.0;
@@ -28,6 +33,11 @@ constexpr int height = 200;
 constexpr int m = 10000;
 constexpr int sdm = 50;
 constexpr double G=6.67e-5;
+
+typedef struct {
+    Asteroide asteroides[];
+    Planeta planetas[];
+} cuerpos;
 
 void init(unsigned int seed, Cuerpo &c, int planeta){
     
@@ -83,7 +93,7 @@ void simulate(Cuerpo cuerpos[]){
 void atraccion(Cuerpo &c1, Cuerpo &c2){
     double distancia=sqrt( pow( (c1.posx-c2.posx),2)+pow((c1.posx-c2.posx), 2) );
     //Calculos del enunciado
-    if(distancia>5){
+    if(distancia>dmin){
         double pendiente=(c1.posy-c2.posy)/(c1.posx - c2.posx);
         if(pendiente>1){
             pendiente=1;
@@ -93,9 +103,6 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
 
         double alpha = atan(pendiente);
         
-        //Me gustaria tener mas decimales de G
-        double G = 6.665*pow(10, -11);
-
         //double fuerzax = (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha) ;
         //double fuerzay = (G*c1.masa*c2.masa)/(distancia*distancia)*sen(alpha) ;
 
@@ -109,10 +116,7 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         c1.vx += (fuerza[0]/c1.masa)*tiempo;
         c1.vy += (fuerza[1]/c1.masa)*tiempo;
         c2.vx -= (fuerza[0]/c2.masa)*tiempo;
-        c2.vy -= (fuerza[1]/c2.masa)*tiempo;
-
-        
-        //return fuerza ;
+        c2.vy -= (fuerza[1]/c2.masa)*tiempo;               
     }
   
 }
@@ -148,6 +152,8 @@ int main(int argc, char *argv[]){
            init(semilla+i, planetas[i-num_asteroides], i-num_asteroides);
         }
     }
+    
+    writeInit(argc, argv, asteroides, planetas);   
 
     //Calculo de la fuerza de atraccion entre cada planeta
     // O(n_asteroides²-n_asteroides+n_asteroides*n_planetas)
@@ -165,7 +171,7 @@ int main(int argc, char *argv[]){
         }
     }
 
-    writeInit(argc, argv, asteroides, planetas);    
+    
     return 0;
 }
 
