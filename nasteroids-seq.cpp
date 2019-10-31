@@ -4,12 +4,12 @@
 #include <random>
 using namespace std;
 
+//La clase Cuerpo engloba a planetas y asteroides
 class Cuerpo{
     public:
         double posx, posy, masa, vx = 0, vy = 0;
 
-        void set(double x ,double y, double m) { posx = x; posy = y; masa = m;};
-        
+        void set(double x ,double y, double m) { posx = x; posy = y; masa = m;};i
 };
 
 class Planeta : public Cuerpo {  
@@ -21,11 +21,13 @@ class Asteroide : public Cuerpo {
         void Mover(int tiempo);
 };
 
+//Función que mueve al asteroide cambiando su posición, velocidad y tiempo transcurrido
 void Asteroide::Mover(int tiempo){
     posx = posx + vx*tiempo;
     posy = posy + vy*tiempo;
 }
 
+//Constantes dadas en el enunciado
 constexpr int tiempo = 0.1;
 constexpr double dmin = 5.0;
 constexpr int width = 200;
@@ -122,17 +124,17 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
 }
 
 int main(int argc, char *argv[]){
-    
+    //Si el número de argumentos no es el correcto se imprime el uso correcto de la aplicación    
     if(argc<5){
         cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
         return -1;
     }
     
     //Parseo de los datos del enunciado, quizas try and catch
-    int num_asteroides = atoi(argv[1]);     
+    int num_asteroides = atoi(argv[1]);
     int num_iteraciones = atoi(argv[2]);    
-    int num_planetas = atoi(argv[3]);       
-    int semilla = atoi(argv[4]);     
+    int num_planetas = atoi(argv[3]);     
+    int semilla = atoi(argv[4]);
     
     //Escribimos los argumentos en un archivo
     ofstream init_file ("init_conf.txt");
@@ -140,6 +142,7 @@ int main(int argc, char *argv[]){
         init_file << argv[i] << " ";
     }
     
+    //Declaramos los cuerpos
     Planeta planetas[num_planetas];
     Asteroide asteroides[num_asteroides];
 
@@ -167,11 +170,8 @@ int main(int argc, char *argv[]){
                     atraccion(asteroides[i], planetas[j]);
                 }
             }
-
         }
     }
-
-    
     return 0;
 }
 
