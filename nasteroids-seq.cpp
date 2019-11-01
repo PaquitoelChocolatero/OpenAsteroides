@@ -5,7 +5,7 @@
 using namespace std;
 
 //Constantes dadas en el enunciado
-constexpr int tiempo = 0.1;
+constexpr double tiempo = 0.1;
 constexpr double dmin = 5.0;
 constexpr int width = 200;
 constexpr int height = 200;
@@ -16,9 +16,9 @@ constexpr double G=6.67e-5;
 //La clase Cuerpo engloba a planetas y asteroides
 class Cuerpo{
     public:
-        double posx, posy, masa, vx = 0, vy = 0;
+        double posx, posy, masa, vx, vy;
 
-        void set(double x ,double y, double m) { posx = x; posy = y; masa = m;};
+        void set(double x ,double y, double m) { posx = x; posy = y; masa = m; vx = 0; vy=0;};
 };
 
 class Planeta : public Cuerpo {  
@@ -122,12 +122,12 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
             (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha), 
             (G*c1.masa*c2.masa)/(distancia*distancia)*sin(alpha)
         };
-
+        
         //V = V0 + a*t
         c1.vx += (fuerza[0]/c1.masa)*tiempo;
         c1.vy += (fuerza[1]/c1.masa)*tiempo;
         c2.vx -= (fuerza[0]/c2.masa)*tiempo;
-        c2.vy -= (fuerza[1]/c2.masa)*tiempo;               
+        c2.vy -= (fuerza[1]/c2.masa)*tiempo;       
     }
 }
 
@@ -199,6 +199,7 @@ int main(int argc, char *argv[]){
 
             //Movemos el asteroide de turno 
             asteroides[i].Mover();
+            
         }
     }
 
