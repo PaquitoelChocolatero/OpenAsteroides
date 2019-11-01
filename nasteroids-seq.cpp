@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <random>
+//#include "nasteroids.h"
 using namespace std;
 
 //Constantes dadas en el enunciado
