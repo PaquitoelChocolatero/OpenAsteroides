@@ -48,11 +48,52 @@ typedef struct {
     int semilla;
 }Datos;
 
-void init(unsigned int seed, Cuerpo &c, int planeta){    
-    std::default_random_engine re{seed};
-    std::uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
-    std::uniform_real_distribution<double> ydist{0.0, std::nextafter(height,std::numeric_limits<double>::max())};
-    std::normal_distribution<double> mdist{m, sdm};
+void init(Datos d, Asteroide *asteroides, Planeta *planetas){
+    unsigned long int seed = d.semilla;
+    default_random_engine re{seed};
+    uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
+    uniform_real_distribution<double> ydist{0.0, std::nextafter(height,std::numeric_limits<double>::max())};
+    normal_distribution<double> mdist{m, sdm};
+
+    for (int i = 0; i<d.num_asteroides; i++){
+        double posx = xdist(re);
+        double posy = ydist(re);
+        double masa = mdist(re);        
+        asteroides[i].set(posx, posy, masa);
+    }
+    double posx, posy, masa;
+    for (int i=0; i<d.num_planetas; i++){
+        int lateral = i%4;
+        switch (lateral){
+            case 0:
+                posy = ydist(re);
+                masa = mdist(re);
+                planetas[i].set(0, posy, masa);
+                break;
+            case 1:
+                posx = xdist(re);
+                masa = mdist(re);
+                planetas[i].set(posx, 0, masa);
+                break;
+            case 2:
+                posy = ydist(re);
+                masa = mdist(re);
+                planetas[i].set(width, posy, masa);
+                break;
+            case 3:
+                posx = xdist(re);
+                masa = mdist(re);
+                planetas[i].set(posx, height, masa);
+                break;
+        }      
+    }
+}
+
+/*void init(Datos, Cuerpo &c, int planeta){    
+    default_random_engine re{seed};
+    uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
+    uniform_real_distribution<double> ydist{0.0, std::nextafter(height,std::numeric_limits<double>::max())};
+    normal_distribution<double> mdist{m, sdm};
     
     double posX = xdist(re);
     double posY = ydist(re);
@@ -75,7 +116,7 @@ void init(unsigned int seed, Cuerpo &c, int planeta){
         }
     }
     c.set(posX, posY, masa);
-}
+}*/
 
 // Funcion para escribir en un fichero los valores iniciales
 void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
@@ -164,15 +205,16 @@ int main(int argc, char *argv[]){
     Planeta *planetas = new Planeta[datos.num_planetas];
     Asteroide *asteroides = new Asteroide[datos.num_asteroides];
 
+    init(datos, asteroides, planetas);
     //Inicializacion de cada cuerpo
-    for (int i = 0;i<(datos.num_asteroides + datos.num_planetas); i++){
+    /*for (int i = 0;i<(datos.num_asteroides + datos.num_planetas); i++){
         if (i<datos.num_asteroides){
-            init(datos.semilla+i, asteroides[i], -1);
+            init(datos.semilla, asteroides[i], -1);
         }
         else {
-           init(datos.semilla+i, planetas[i-datos.num_asteroides], i-datos.num_asteroides);
+           init(datos.semilla, planetas[i-datos.num_asteroides], i-datos.num_asteroides);
         }
-    }
+    }*/
     
     writeInit(datos, asteroides, planetas);   
 
