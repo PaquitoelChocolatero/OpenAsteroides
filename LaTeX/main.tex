@@ -1,45 +1,68 @@
-\documentclass[12pt,a4paper]{article}
-\usepackage{graphicx}
+\documentclass[12pt]{article}
 \usepackage[utf8]{inputenc}
-\renewcommand*\contentsname{Índice: }
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{-1}%
+    \newpage}
 
 \begin{document}
-\begin{titlepage}
-	\centering
-	\includegraphics[width=0.2\textwidth]{images/uc3m.png}\par\vspace{1cm}
-	{\scshape\LARGE Universidad Carlos III \par}
-	\vspace{1cm}
-	{\scshape\Large Nombre de la asignatura\par}
-	\vspace{1.5cm}
-	{\huge\bfseries Nombre del trabajo\par}
-	\vspace{2cm}
-	{\Large\itshape Nombre y apellidos del autor 1\par}
-	{\Large NIA1@alumnos.uc3m.es\par}
-	\vspace{1cm}
-	{\Large\itshape Nombre y apellidos del autor 2\par}
-	{\Large NIA2@alumnos.uc3m.es\par}
-	\vfill
-	
-% Bottom of the page
-	{\large \today\par}
-\end{titlepage}
-
-\tableofcontents
-
-\newpage
-  %Primer apartado
-  \section{Secuencial}
-  \subsection{Introducción}
-  \noindent
-  \subsection{Pruebas de rendimiento}
-  \noindent
-\newpage
-\section{Paralelo}
-  \subsection{Introducción}
-  \noindent
-  \subsection{Pruebas de rendimiento}
-  \noindent
-\newpage
-\section{Conclusión}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \begin{center}
+    %Logo universidad
+    \includegraphics[width=80mm]{uc3m.png}
+    %Asignatura
+    \\ \vspace{40mm}
+    \LARGE Arquitectura de los computadores
+    %Nombre de la práctica
+    \\
+    \noindent\rule{12cm}{0.4pt}
+    \\
+    \vspace{5mm}
+    \textbf{\Huge Práctica de programación paralela con OpenMP}
+    \\
+    \noindent\rule{12cm}{0.4pt}
+    \\
+    %Día
+    \large Fecha
+    \end{center}
+    %Autor/es
+    \vspace{20mm}
+    \textbf{\large Autores:}
+    \normalsize \\
+    Juan Francisco García Casado\\100383464@alumnos.uc3m.es
+    \\ \\
+    Guillermo Bautista-Abad Acebo\\100383477@alumnos.uc3m.es
+    \\ \\
+    Alejandro de la Cruz Alvarado\\100383497@alumnos.uc3m.es
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+    %Índice
+    \newpage
+    \tableofcontents
+    \newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %Primer apartado
+    \section{Secuencial}
+        \subsection{Introducción}
+        \noindent 
+        \subsection{Pruebas de rendimiento}
+        \noindent
+    \newpage
+    \section{Paralelo}
+        \subsection{Introducción}
+        \noindent
+        \subsection{Pruebas de rendimiento}
+        \noindent
+    \newpage
+    \section{Conclusión}
+    \noindent
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %Contraportada
+    \newpage
+    \blankpage
 \end{document}
-
