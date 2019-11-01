@@ -9,7 +9,7 @@ class Cuerpo{
     public:
         double posx, posy, masa, vx = 0, vy = 0;
 
-        void set(double x ,double y, double m) { posx = x; posy = y; masa = m;};i
+        void set(double x ,double y, double m) { posx = x; posy = y; masa = m;};
 };
 
 class Planeta : public Cuerpo {  
@@ -18,11 +18,15 @@ class Planeta : public Cuerpo {
 
 class Asteroide : public Cuerpo {
     public:
-        void Mover(int tiempo);
+        void Mover();
 };
 
 //Función que mueve al asteroide cambiando su posición, velocidad y tiempo transcurrido
-void Asteroide::Mover(int tiempo){
+void Asteroide::Mover(){
+    //Si llegamos al borde se invierte la velocidad de esa coordenada (rebota)
+    if(posx<=0 || posx>=width) vx *= -1;
+    if(posy<=0 || posy>=height) vy *= -1;
+    //Movemos el asteroide
     posx = posx + vx*tiempo;
     posy = posy + vy*tiempo;
 }
@@ -112,7 +116,7 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         double fuerza[]{
             (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha), 
             (G*c1.masa*c2.masa)/(distancia*distancia)*sin(alpha)
-            };
+        };
 
         //V = V0 + a*t
         c1.vx += (fuerza[0]/c1.masa)*tiempo;
@@ -126,7 +130,7 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
 int main(int argc, char *argv[]){
     //Si el número de argumentos no es el correcto se imprime el uso correcto de la aplicación    
     if(argc<5){
-        cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
+        cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"./nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
         return -1;
     }
     
@@ -158,20 +162,34 @@ int main(int argc, char *argv[]){
     
     writeInit(argc, argv, asteroides, planetas);   
 
-    //Calculo de la fuerza de atraccion entre cada planeta
-    // O(n_asteroides²-n_asteroides+n_asteroides*n_planetas)
-    for(int i=0; i<num_asteroides; i++){
-        for(int j=i+1; j<num_asteroides; j++){
-            //Si i es mayor o igual que el numero de asteroides es que ambos son planetas y no hace falta calcular la fuerza entre planetas
-            if (i<num_asteroides){
-                if(j<num_asteroides){
-                    atraccion(asteroides[i], asteroides[j]);
-                } else if(j >= num_planetas){
-                    atraccion(asteroides[i], planetas[j]);
+    //Bucle principal de la simulación
+    for(int it = 0;it<num_iteraciones;it++){
+
+        //Calculo de la fuerza de atracción entre cada planeta -> O(n_asteroides²-n_asteroides+n_asteroides*n_planetas)
+        //Recorremos sólo los asteroides (los planetas son fijos)
+        for(int i=0; i<num_asteroides; i++){
+            //Se sienten atraídos por todos los cuerpos
+            for(int j=i+1; j<(num_asteroides + num_planetas)-1; j++){
+                //Si i es mayor o igual que el numero de asteroides es que ambos son planetas y no hace falta calcular la fuerza entre planetas
+                if (i<num_asteroides){
+                    //Si j es un asteroide
+                    if(j<num_asteroides){
+                        atraccion(asteroides[i], asteroides[j]);
+                    }
+                    //Si es un planeta
+                    else{
+                        atraccion(asteroides[i], planetas[j]);
+                    }
                 }
             }
+
+            //Movemos el asteroide de turno 
+            asteroides[i].Mover();
+
         }
+
     }
+
     return 0;
 }
 
