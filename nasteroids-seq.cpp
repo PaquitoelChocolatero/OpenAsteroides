@@ -4,6 +4,15 @@
 #include <random>
 using namespace std;
 
+//Constantes dadas en el enunciado
+constexpr int tiempo = 0.1;
+constexpr double dmin = 5.0;
+constexpr int width = 200;
+constexpr int height = 200;
+constexpr int m = 10000;
+constexpr int sdm = 50;
+constexpr double G=6.67e-5;
+
 //La clase Cuerpo engloba a planetas y asteroides
 class Cuerpo{
     public:
@@ -38,14 +47,7 @@ typedef struct {
     int semilla;
 }Datos;
 
-//Constantes dadas en el enunciado
-constexpr int tiempo = 0.1;
-constexpr double dmin = 5.0;
-constexpr int width = 200;
-constexpr int height = 200;
-constexpr int m = 10000;
-constexpr int sdm = 50;
-constexpr double G=6.67e-5;
+
 
 void init(unsigned int seed, Cuerpo &c, int planeta){
     
@@ -136,8 +138,27 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
   
 }
 
+Datos parseArgs(int argc, char *argv[]){
+    if (argc<5){
+        throw int(1);
+    }
+    Datos datos;
+    try{
+        datos.num_asteroides = atoi(argv[1]);
+        datos.num_iteraciones = atoi(argv[2]);    
+        datos.num_planetas = atoi(argv[3]);     
+        datos.semilla = atoi(argv[4]);
+    }catch( exception &e){
+        throw int(1);
+    }
+
+    return datos;   
+    
+}
+
 int main(int argc, char *argv[]){
     //Si el número de argumentos no es el correcto se imprime el uso correcto de la aplicación    
+    /*
     if(argc<5){
         cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"./nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
         return -1;
@@ -148,36 +169,46 @@ int main(int argc, char *argv[]){
     int num_iteraciones = atoi(argv[2]);    
     int num_planetas = atoi(argv[3]);     
     int semilla = atoi(argv[4]);
+    */
+    Datos datos;
+    try{
+        datos = parseArgs(argc, argv);
+    }catch(int i){
+        if (i==1){
+            cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"./nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
+            return -1;
+        }
+    }
+  
     
-    Datos datos = {num_asteroides, num_iteraciones, num_planetas, semilla};
    //Declaramos los cuerpos
-    Planeta planetas[num_planetas];
-    Asteroide asteroides[num_asteroides];
+    Planeta planetas[datos.num_planetas];
+    Asteroide asteroides[datos.num_asteroides];
 
     //Inicializacion de cada cuerpo
-    for (int i = 0;i<(num_asteroides + num_planetas); i++){
-        if (i<num_asteroides){
-            init(semilla+i, asteroides[i], -1);
+    for (int i = 0;i<(datos.num_asteroides + datos.num_planetas); i++){
+        if (i<datos.num_asteroides){
+            init(datos.semilla+i, asteroides[i], -1);
         }
         else {
-           init(semilla+i, planetas[i-num_asteroides], i-num_asteroides);
+           init(datos.semilla+i, planetas[i-datos.num_asteroides], i-datos.num_asteroides);
         }
     }
     
     writeInit(datos, asteroides, planetas);   
 
     //Bucle principal de la simulación
-    for(int it = 0;it<num_iteraciones;it++){
+    for(int it = 0;it<datos.num_iteraciones;it++){
 
         //Calculo de la fuerza de atracción entre cada planeta -> O(n_asteroides²-n_asteroides+n_asteroides*n_planetas)
         //Recorremos sólo los asteroides (los planetas son fijos)
-        for(int i=0; i<num_asteroides; i++){
+        for(int i=0; i<datos.num_asteroides; i++){
             //Se sienten atraídos por todos los cuerpos
-            for(int j=i+1; j<(num_asteroides + num_planetas)-1; j++){
+            for(int j=i+1; j<(datos.num_asteroides + datos.num_planetas)-1; j++){
                 //Si i es mayor o igual que el numero de asteroides es que ambos son planetas y no hace falta calcular la fuerza entre planetas
-                if (i<num_asteroides){
+                if (i<datos.num_asteroides){
                     //Si j es un asteroide
-                    if(j<num_asteroides){
+                    if(j<datos.num_asteroides){
                         atraccion(asteroides[i], asteroides[j]);
                     }
                     //Si es un planeta
