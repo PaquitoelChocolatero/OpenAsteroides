@@ -9,7 +9,7 @@ class Cuerpo{
     public:
         double posx, posy, masa, vx = 0, vy = 0;
 
-        void set(double x ,double y, double m) { posx = x; posy = y; masa = m;};i
+        void set(double x ,double y, double m) { posx = x; posy = y; masa = m;};
 };
 
 class Planeta : public Cuerpo {  
@@ -27,6 +27,13 @@ void Asteroide::Mover(int tiempo){
     posy = posy + vy*tiempo;
 }
 
+typedef struct {
+    int num_asteroides;
+    int num_iteraciones;
+    int num_planetas; 
+    int semilla;
+}Datos;
+
 //Constantes dadas en el enunciado
 constexpr int tiempo = 0.1;
 constexpr double dmin = 5.0;
@@ -35,11 +42,6 @@ constexpr int height = 200;
 constexpr int m = 10000;
 constexpr int sdm = 50;
 constexpr double G=6.67e-5;
-
-typedef struct {
-    Asteroide asteroides[];
-    Planeta planetas[];
-} cuerpos;
 
 void init(unsigned int seed, Cuerpo &c, int planeta){
     
@@ -72,12 +74,19 @@ void init(unsigned int seed, Cuerpo &c, int planeta){
 }
 
 // Funcion para escribir en un fichero los valores iniciales
-void writeInit(int argc, char *argv[], Asteroide asteroides[], Planeta planetas[]){
+void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
     ofstream init_file ("init_conf.txt");
-    for(int i=1; i<argc; i++ ){
-        init_file << argv[i] << " ";
+    init_file << d.num_asteroides << " " << d.num_iteraciones << " " << d.num_planetas << " " << d.semilla << endl;
+     
+    for (int i=0; i<d.num_asteroides; ++i){
+        init_file << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].masa << endl;
     }
-    init_file << endl;
+
+    for (int i=0; i<d.num_planetas; ++i){
+       init_file << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
+    }
+
+
     init_file.close();
 }
 
@@ -129,20 +138,15 @@ int main(int argc, char *argv[]){
         cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
         return -1;
     }
-    
+   
     //Parseo de los datos del enunciado, quizas try and catch
     int num_asteroides = atoi(argv[1]);
     int num_iteraciones = atoi(argv[2]);    
     int num_planetas = atoi(argv[3]);     
     int semilla = atoi(argv[4]);
     
-    //Escribimos los argumentos en un archivo
-    ofstream init_file ("init_conf.txt");
-    for(int i=1; i<argc; i++ ){
-        init_file << argv[i] << " ";
-    }
-    
-    //Declaramos los cuerpos
+    Datos datos = {num_asteroides, num_iteraciones, num_planetas, semilla};
+   //Declaramos los cuerpos
     Planeta planetas[num_planetas];
     Asteroide asteroides[num_asteroides];
 
@@ -156,7 +160,7 @@ int main(int argc, char *argv[]){
         }
     }
     
-    writeInit(argc, argv, asteroides, planetas);   
+    writeInit(datos, asteroides, planetas);   
 
     //Calculo de la fuerza de atraccion entre cada planeta
     // O(n_asteroides²-n_asteroides+n_asteroides*n_planetas)
