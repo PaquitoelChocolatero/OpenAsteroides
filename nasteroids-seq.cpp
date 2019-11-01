@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 #include <random>
-//#include "nasteroids.h"
 using namespace std;
 
 //Constantes dadas en el enunciado
@@ -40,6 +39,7 @@ void Asteroide::Mover(){
     posx = posx + vx*tiempo;
     posy = posy + vy*tiempo;
 }
+
 
 typedef struct {
     int num_asteroides;
@@ -212,4 +212,3 @@ int main(int argc, char *argv[]){
 
     return 0;
 }
-
