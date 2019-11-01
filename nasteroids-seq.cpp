@@ -47,8 +47,6 @@ typedef struct {
     int semilla;
 }Datos;
 
-
-
 void init(unsigned int seed, Cuerpo &c, int planeta){    
     std::default_random_engine re{seed};
     std::uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
@@ -86,12 +84,9 @@ void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
     for (int i=0; i<d.num_asteroides; ++i){
         init_file << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].masa << endl;
     }
-
     for (int i=0; i<d.num_planetas; ++i){
        init_file << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
     }
-
-
     init_file.close();
 }
 
@@ -133,7 +128,6 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         c2.vx -= (fuerza[0]/c2.masa)*tiempo;
         c2.vy -= (fuerza[1]/c2.masa)*tiempo;               
     }
-  
 }
 
 Datos parseArgs(int argc, char *argv[]){
@@ -150,9 +144,7 @@ Datos parseArgs(int argc, char *argv[]){
     }catch(invalid_argument &e){
         throw int(1);
     }
-
     return datos;   
-  
 }
 
 int main(int argc, char *argv[]){
@@ -166,7 +158,6 @@ int main(int argc, char *argv[]){
             return -1;
         }
     }
-  
     
    //Declaramos los cuerpos
     Planeta *planetas = new Planeta[datos.num_planetas];
@@ -207,10 +198,16 @@ int main(int argc, char *argv[]){
 
             //Movemos el asteroide de turno 
             asteroides[i].Mover();
-
         }
-
     }
+
+    //Escribimos el resultado final
+    ofstream out_file ("output.txt");
+     
+    for (int i=0; i<datos.num_asteroides; ++i){
+        out_file << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].vx << " " << asteroides[i].vy << " "  << asteroides[i].masa << endl;
+    }
+    out_file.close();
 
     return 0;
 }
