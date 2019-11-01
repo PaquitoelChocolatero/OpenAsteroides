@@ -169,8 +169,8 @@ int main(int argc, char *argv[]){
   
     
    //Declaramos los cuerpos
-    Planeta planetas[datos.num_planetas];
-    Asteroide asteroides[datos.num_asteroides];
+    Planeta *planetas = new Planeta[datos.num_planetas];
+    Asteroide *asteroides = new Asteroide[datos.num_asteroides];
 
     //Inicializacion de cada cuerpo
     for (int i = 0;i<(datos.num_asteroides + datos.num_planetas); i++){
