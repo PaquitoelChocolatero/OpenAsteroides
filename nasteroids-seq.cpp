@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <typeinfo>
+#include <string>
 #include <random>
 using namespace std;
 
@@ -49,8 +49,7 @@ typedef struct {
 
 
 
-void init(unsigned int seed, Cuerpo &c, int planeta){
-    
+void init(unsigned int seed, Cuerpo &c, int planeta){    
     std::default_random_engine re{seed};
     std::uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
     std::uniform_real_distribution<double> ydist{0.0, std::nextafter(height,std::numeric_limits<double>::max())};
@@ -138,37 +137,26 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
 }
 
 Datos parseArgs(int argc, char *argv[]){
+     //Si el número de argumentos no es el correcto se imprime el uso correcto de la aplicación 
     if (argc<5){
         throw int(1);
     }
     Datos datos;
     try{
-        datos.num_asteroides = atoi(argv[1]);
-        datos.num_iteraciones = atoi(argv[2]);    
-        datos.num_planetas = atoi(argv[3]);     
-        datos.semilla = atoi(argv[4]);
-    }catch( exception &e){
+        datos.num_asteroides = stoi(argv[1]);
+        datos.num_iteraciones = stoi(argv[2]);    
+        datos.num_planetas = stoi(argv[3]);     
+        datos.semilla = stoi(argv[4]);
+    }catch(invalid_argument &e){
         throw int(1);
     }
 
     return datos;   
-    
+  
 }
 
 int main(int argc, char *argv[]){
-    //Si el número de argumentos no es el correcto se imprime el uso correcto de la aplicación    
-    /*
-    if(argc<5){
-        cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"./nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
-        return -1;
-    }
-   
-    //Parseo de los datos del enunciado, quizas try and catch
-    int num_asteroides = atoi(argv[1]);
-    int num_iteraciones = atoi(argv[2]);    
-    int num_planetas = atoi(argv[3]);     
-    int semilla = atoi(argv[4]);
-    */
+      
     Datos datos;
     try{
         datos = parseArgs(argc, argv);
