@@ -9,7 +9,7 @@ class Cuerpo{
     public:
         double posx, posy, masa, vx = 0, vy = 0;
 
-        void set(double x ,double y, double m) { posx = x; posy = y; masa = m;};i
+        void set(double x ,double y, double m) { posx = x; posy = y; masa = m;};
 };
 
 class Planeta : public Cuerpo {  
@@ -105,12 +105,9 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
 
         double alpha = atan(pendiente);
         
-<<<<<<< HEAD
         //Me gustaria tener mas decimales de G
         double G = 6.674*pow(10, -5);
         
-=======
->>>>>>> bfc901e3d3e4b1d096091c80ca578c20740d0d9f
         //double fuerzax = (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha) ;
         //double fuerzay = (G*c1.masa*c2.masa)/(distancia*distancia)*sen(alpha) ;
 
@@ -135,7 +132,6 @@ int main(int argc, char *argv[]){
         cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
         return -1;
     }
-    
     //Parseo de los datos del enunciado, quizas try and catch
     int num_asteroides = atoi(argv[1]);
     int num_iteraciones = atoi(argv[2]);    
@@ -167,13 +163,14 @@ int main(int argc, char *argv[]){
     //Calculo de la fuerza de atraccion entre cada planeta
     // O(n_asteroides²-n_asteroides+n_asteroides*n_planetas)
     for(int i=0; i<num_asteroides; i++){
-        for(int j=i+1; j<num_asteroides; j++){
+        for(int j=i+1; j<(num_asteroides + num_planetas); j++){
             //Si i es mayor o igual que el numero de asteroides es que ambos son planetas y no hace falta calcular la fuerza entre planetas
             if (i<num_asteroides){
                 if(j<num_asteroides){
                     atraccion(asteroides[i], asteroides[j]);
-                } else if(j >= num_planetas){
+                } else if(j >= num_asteroides){
                     atraccion(asteroides[i], planetas[j]);
+                    
                 }
             }
         }
