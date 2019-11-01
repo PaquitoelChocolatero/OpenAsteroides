@@ -1,4 +1,8 @@
 init_conf.txt
 nasteroids-seq
 nasteroids-par
+<<<<<<< HEAD
 a.out
+=======
+output.txt
+>>>>>>> f8b18a2e5cec3aa8545d45a1907668a6dba58713
