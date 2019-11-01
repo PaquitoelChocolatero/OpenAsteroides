@@ -109,6 +109,12 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
 
         double alpha = atan(pendiente);
         
+<<<<<<< HEAD
+        //Me gustaria tener mas decimales de G
+        double G = 6.674*pow(10, -5);
+        
+=======
+>>>>>>> bfc901e3d3e4b1d096091c80ca578c20740d0d9f
         //double fuerzax = (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha) ;
         //double fuerzay = (G*c1.masa*c2.masa)/(distancia*distancia)*sen(alpha) ;
 
