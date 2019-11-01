@@ -117,7 +117,6 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         }
 
         double alpha = atan(pendiente);
-
         //double fuerzax = (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha) ;
         //double fuerzay = (G*c1.masa*c2.masa)/(distancia*distancia)*sen(alpha) ;
 
