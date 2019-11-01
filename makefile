@@ -1,6 +1,8 @@
 #IDIR = include
 CC=g++
-CFLAGS= -std=c++14 -Wall -Wextra -Wno-deprecated -Werror -pedantic -pedantic-errors -O3 -DNDEBUG
+
+#Descomentar cuando estemos listos para debuguear los errores estos
+#CFLAGS= -std=c++14 -Wall -Wextra -Wno-deprecated -Werror -pedantic -pedantic-errors -O3 -DNDEBUG
 
 #ODIR=.
 LIBDIR = lib
@@ -19,10 +21,10 @@ $(ODIR)/%.o: %.c $(DEPS)
 
 
 nasteroids-seq: nasteroids-seq.cpp
-	$(CC) nasteroids-seq.cpp -o nasteroids-seq $(CFLAGS)
+	$(CC) $^ -o $@ $(CFLAGS) $(LIBS)
 
 nasteroids-par: nasteroids-par.cpp
-	$(CC) nasteroids-par.cpp -o nasteroids-par $@ $^ $(CFLAGS) $(LIBS)
+	$(CC) $^ -o $@ $(CFLAGS) $(LIBS)
 
 .PHONY: clean
 
