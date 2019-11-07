@@ -155,8 +155,6 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         temp = c1.vy;
         c1.vy = c2.vy;
         c2.vy = temp;
-        //Borramos la variable para ahorrar memoria
-        delete temp;
     }
 }
 
