@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <random>
+#include <chrono>
 using namespace std;
 
 //Constantes dadas en el enunciado
@@ -218,6 +219,8 @@ int main(int argc, char *argv[]){
     
     writeInit(datos, asteroides, planetas);   
 
+    auto start=chrono::high_resolution_clock::now();
+
     //Bucle principal de la simulación
     for(int it = 0;it<datos.num_iteraciones;it++){
 
@@ -245,6 +248,8 @@ int main(int argc, char *argv[]){
         }
     }
 
+    auto end=chrono::high_resolution_clock::now();
+
     //Escribimos el resultado final
     ofstream out_file ("output.txt");
      
@@ -252,6 +257,11 @@ int main(int argc, char *argv[]){
         out_file << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].vx << " " << asteroides[i].vy << " "  << asteroides[i].masa << endl;
     }
     out_file.close();
+
+    chrono::duration<double> elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);
+
+    cout<< "Time elapsed: " <<elapsed.count()<<endl;
+
 
     return 0;
 }
