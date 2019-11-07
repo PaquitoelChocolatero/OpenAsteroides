@@ -165,7 +165,7 @@ int main(int argc, char *argv[]){
         datos = parseArgs(argc, argv);
     }catch(int i){
         if (i==1){
-            cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"./nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
+            cout << "nasteroids-par: Wrong arguments."<< endl <<"Correct use:"<< endl <<"./nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
             return -1;
         }
     }
