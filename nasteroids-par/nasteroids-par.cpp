@@ -158,7 +158,7 @@ Datos parseArgs(int argc, char *argv[]){
 
 int main(int argc, char *argv[]){
 
-    int num_threads = 20;
+    omp_set_num_threads(25);
       
     Datos datos;
     try{
@@ -187,8 +187,7 @@ int main(int argc, char *argv[]){
         //Calculo de la fuerza de atracción entre cada cuerpo -> O(n_asteroides²-n_asteroides+n_asteroides*n_planetas)
         
         //Cada hilo recorre una porcion del array de cuerpos
-        #pragma omp parallel for num_threads(num_threads)
-        
+        #pragma omp parallel for        
             //Recorremos sólo los asteroides (los planetas son fijos)
             for(int i=0; i<datos.num_asteroides; i++){
                 //Se sienten atraídos por todos los cuerpos
