@@ -32,9 +32,23 @@ class Asteroide : public Cuerpo {
 
 //Función que mueve al asteroide cambiando su posición, velocidad y tiempo transcurrido
 void Asteroide::Mover(){
-    //Si llegamos al borde se invierte la velocidad de esa coordenada (rebota)
-    if(posx<=0 || posx>=width) vx *= -1;
-    if(posy<=0 || posy>=height) vy *= -1;
+    //Si llegamos al borde colocamos el asteroide 5 posiciones alejado de él e invertimos su velocidad
+    if(posx<=0){
+        posx = dmin;
+        vx *= -1;
+    }
+    else if(posx>=width){
+        posx = width-dmin;
+        vx *= -1;
+    }
+    if(posy<=0){
+        posy = dmin;
+        vy *= -1;
+    }
+    else if(posy>=height){
+        posy = height-dmin;
+        vy *= -1;
+    }
     //Movemos el asteroide
     posx = posx + vx*tiempo;
     posy = posy + vy*tiempo;
@@ -89,35 +103,6 @@ void init(Datos d, Asteroide *asteroides, Planeta *planetas){
     }
 }
 
-/*void init(Datos, Cuerpo &c, int planeta){    
-    default_random_engine re{seed};
-    uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
-    uniform_real_distribution<double> ydist{0.0, std::nextafter(height,std::numeric_limits<double>::max())};
-    normal_distribution<double> mdist{m, sdm};
-    
-    double posX = xdist(re);
-    double posY = ydist(re);
-    double masa = mdist(re);    
-    if (planeta != -1) {
-        planeta = planeta % 4;
-        switch (planeta){
-            case 0:
-                posX = 0;
-                break;
-            case 1:
-                posY = 0;
-                break;
-            case 2:
-                posX = width;
-                break;
-            case 3:
-                posY = height;
-                break;
-        }
-    }
-    c.set(posX, posY, masa);
-}*/
-
 // Funcion para escribir en un fichero los valores iniciales
 void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
     ofstream init_file ("init_conf.txt");
@@ -131,14 +116,6 @@ void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
     }
     init_file.close();
 }
-
-/*
-void simulate(Cuerpo cuerpos[]){
-    for(int i=0; i<(sizeof(a)/sizeof(*a)); i++){
-        cout << cuerpos[i].posx << endl;
-    }
-}
-*/
 
 //Se calcula la atraccion entre dos cuerpos y se modifican sus velocidades usando esa fuerza.
 //      NO SE MODIFICAN LAS POSICIONES: esto es para luego modificar solo las de los asteroides.
@@ -155,8 +132,6 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         }
 
         double alpha = atan(pendiente);
-        //double fuerzax = (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha) ;
-        //double fuerzay = (G*c1.masa*c2.masa)/(distancia*distancia)*sen(alpha) ;
 
         //fuerza[0]=fuerzax, fuerza[1]=fuerzay
         double fuerza[]{
@@ -169,6 +144,18 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         c1.vy += (fuerza[1]/c1.masa)*tiempo;
         c2.vx -= (fuerza[0]/c2.masa)*tiempo;
         c2.vy -= (fuerza[1]/c2.masa)*tiempo;       
+    }
+    //Si la distancia es menor que la mínima intercambiamos los valores de velocidad
+    else{
+        //Usamos una variable temporal
+        double temp = c1.vx;
+        c1.vx = c2.vx;
+        c2.vx = temp;
+        temp = c1.vy;
+        c1.vy = c2.vy;
+        c2.vy = temp;
+        //Borramos la variable para ahorrar memoria
+        delete temp;
     }
 }
 
@@ -206,15 +193,6 @@ int main(int argc, char *argv[]){
     Asteroide *asteroides = new Asteroide[datos.num_asteroides];
 
     init(datos, asteroides, planetas);
-    //Inicializacion de cada cuerpo
-    /*for (int i = 0;i<(datos.num_asteroides + datos.num_planetas); i++){
-        if (i<datos.num_asteroides){
-            init(datos.semilla, asteroides[i], -1);
-        }
-        else {
-           init(datos.semilla, planetas[i-datos.num_asteroides], i-datos.num_asteroides);
-        }
-    }*/
     
     writeInit(datos, asteroides, planetas);   
 
