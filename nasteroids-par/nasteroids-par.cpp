@@ -35,9 +35,23 @@ class Asteroide : public Cuerpo {
 
 //Función que mueve al asteroide cambiando su posición, velocidad y tiempo transcurrido
 void Asteroide::Mover(){
-    //Si llegamos al borde se invierte la velocidad de esa coordenada (rebota)
-    if(posx<=0 || posx>=width) vx *= -1;
-    if(posy<=0 || posy>=height) vy *= -1;
+    //Si llegamos al borde colocamos el asteroide 5 posiciones alejado de él e invertimos su velocidad
+    if(posx<=0){
+        posx = dmin;
+        vx *= -1;
+    }
+    else if(posx>=width){
+        posx = width-dmin;
+        vx *= -1;
+    }
+    if(posy<=0){
+        posy = dmin;
+        vy *= -1;
+    }
+    else if(posy>=height){
+        posy = height-dmin;
+        vy *= -1;
+    }
     //Movemos el asteroide
     posx = posx + vx*tiempo;
     posy = posy + vy*tiempo;
@@ -136,6 +150,16 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         c1.vy += (fuerza[1]/c1.masa)*tiempo;
         c2.vx -= (fuerza[0]/c2.masa)*tiempo;
         c2.vy -= (fuerza[1]/c2.masa)*tiempo;       
+    }
+    //Si la distancia es menor que la mínima intercambiamos los valores de velocidad
+    else{
+        //Usamos una variable temporal
+        double temp = c1.vx;
+        c1.vx = c2.vx;
+        c2.vx = temp;
+        temp = c1.vy;
+        c1.vy = c2.vy;
+        c2.vy = temp;
     }
 }
 
