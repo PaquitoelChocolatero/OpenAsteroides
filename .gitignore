@@ -1,2 +1,6 @@
-init_conf.txt
-output.txt
+**/output.txt
+out.txt
+step_by_step.txt
+**/init_conf.txt
+**/nasteroids-seq
+**/nasteroids-par

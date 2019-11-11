@@ -85,21 +85,25 @@ void init(Datos d, Asteroide *asteroides, Planeta *planetas){
             case 0:
                 posy = ydist(re);
                 masa = mdist(re);
+                if(masa<0) masa*=-1;
                 planetas[i].set(0, posy, masa);
                 break;
             case 1:
                 posx = xdist(re);
                 masa = mdist(re);
+                if(masa<0) masa*=-1;
                 planetas[i].set(posx, 0, masa);
                 break;
             case 2:
                 posy = ydist(re);
                 masa = mdist(re);
+                if(masa<0) masa*=-1;
                 planetas[i].set(width, posy, masa);
                 break;
             case 3:
                 posx = xdist(re);
                 masa = mdist(re);
+                if(masa<0) masa*=-1;
                 planetas[i].set(posx, height, masa);
                 break;
         }      
