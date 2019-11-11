@@ -217,7 +217,7 @@ int main(int argc, char *argv[]){
                     }
                     //Si es un planeta
                     else{
-                        atraccion(asteroides[i], planetas[j]);
+                        atraccion(asteroides[i], planetas[j-datos.num_asteroides]);
                     }
                 }
             }
