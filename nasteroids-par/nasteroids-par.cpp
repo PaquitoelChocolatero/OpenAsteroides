@@ -203,9 +203,11 @@ int main(int argc, char *argv[]){
     Asteroide *asteroides = new Asteroide[datos.num_asteroides];
 
     init(datos, asteroides, planetas);
-  
-    
-    writeInit(datos, asteroides, planetas);   
+       
+    #pragma omp paralell
+    {
+        writeInit(datos, asteroides, planetas);   
+    } 
 
     auto start=chrono::high_resolution_clock::now();
 
