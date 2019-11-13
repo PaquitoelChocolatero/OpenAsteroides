@@ -138,10 +138,14 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
 
         double alpha = atan(pendiente);
 
+        double f = (G*c1.masa*c2.masa)/(distancia*distancia);
+        if(f>100){
+            f=100;
+        }
         //fuerza[0]=fuerzax, fuerza[1]=fuerzay
         double fuerza[]{
-            (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha), 
-            (G*c1.masa*c2.masa)/(distancia*distancia)*sin(alpha)
+            (f)*cos(alpha), 
+            (f)*sin(alpha)
         };
         
         //V = V0 + a*t
