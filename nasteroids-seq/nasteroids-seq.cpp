@@ -203,6 +203,10 @@ int main(int argc, char *argv[]){
         }
         
         for(int i=0; i<datos.num_asteroides; i++){
+        
+            //Creamos un vector con todos los asteroides con los que colisiona cada asteroide
+            vector<Cuerpo> choques;
+        
             //Si llegamos al borde colocamos el asteroide 5 posiciones alejado de él e invertimos su velocidad
             if(asteroides[i].posx<=0){
                 asteroides[i].posx = dmin;
@@ -219,19 +223,31 @@ int main(int argc, char *argv[]){
             else if(asteroides[i].posy>=height){
                 asteroides[i].posy = height-dmin;
                 asteroides[i].vy *= -1;
-            }                
+            }             
+
+            //Añadimos el asteroide ed turno
+            choques.push_back(i);
+
             for(int j=i+1; j<datos.num_asteroides; j++){
-                
+                //Calculamos la distancia entre los dos asteroides
                 double distancia=sqrt( pow( (asteroides[i].posx-asteroides[j].posx),2)+pow((asteroides[i].posx-asteroides[j].posx), 2) );
-                if (distancia <= dmin){
-                    double temp = asteroides[i].vx;
-                    asteroides[i].vx = asteroides[j].vx;
-                    asteroides[j].vx = temp;
-                    temp = asteroides[i].vy;
-                    asteroides[i].vy = asteroides[j].vy;
-                    asteroides[j].vy = temp;
-                    break;
+                //Añadimos el asteroide a la lista de choques si su distancia es menor que dmin
+                if (distancia <= dmin) choques.push_back(j);
+            }
+
+            //Si sólo hay un elemento significa que no choca con nadie, luego no hay que hacer la rutina de rebote
+            if(choques.size() != 1){
+                //Guardamos los valores del primer asteroide
+                double tempx = choques[0].vx;
+                double tempy = choques[0].vy;
+                //Iteramos sobre la lista para intercambiar valores
+                for(int i=0; i<choques.size()-1; i++){
+                    asteroides[i].vx = asteroides[i+1].vx;
+                    asteroides[i].vy = asteroides[i+1].vy;
                 }
+                //Le damos al último elemento el valor del primero
+                asteroides[choques.size()-1].vx = tempx;
+                asteroides[choques.size()-1].vy = tempy;
             }
         }
     }
