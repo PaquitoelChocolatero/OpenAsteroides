@@ -33,23 +33,6 @@ class Asteroide : public Cuerpo {
 
 //Función que mueve al asteroide cambiando su posición, velocidad y tiempo transcurrido
 void Asteroide::Mover(){
-    //Si llegamos al borde colocamos el asteroide 5 posiciones alejado de él e invertimos su velocidad
-    if(posx<=0){
-        posx = dmin;
-        vx *= -1;
-    }
-    else if(posx>=width){
-        posx = width-dmin;
-        vx *= -1;
-    }
-    if(posy<=0){
-        posy = dmin;
-        vy *= -1;
-    }
-    else if(posy>=height){
-        posy = height-dmin;
-        vy *= -1;
-    }
     //Movemos el asteroide
     posx = posx + vx*tiempo;
     posy = posy + vy*tiempo;
@@ -154,16 +137,6 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         c2.vx -= (fuerza[0]/c2.masa)*tiempo;
         c2.vy -= (fuerza[1]/c2.masa)*tiempo;       
     }
-    //Si la distancia es menor que la mínima intercambiamos los valores de velocidad
-    else{
-        //Usamos una variable temporal
-        double temp = c1.vx;
-        c1.vx = c2.vx;
-        c2.vx = temp;
-        temp = c1.vy;
-        c1.vy = c2.vy;
-        c2.vy = temp;
-    }
 }
 
 Datos parseArgs(int argc, char *argv[]){
@@ -225,10 +198,41 @@ int main(int argc, char *argv[]){
                     }
                 }
             }
-
             //Movemos el asteroide de turno 
             asteroides[i].Mover();
-            
+        }
+        
+        for(int i=0; i<datos.num_asteroides; i++){
+            //Si llegamos al borde colocamos el asteroide 5 posiciones alejado de él e invertimos su velocidad
+            if(asteroides[i].posx<=0){
+                asteroides[i].posx = dmin;
+                asteroides[i].vx *= -1;
+            }
+            else if(asteroides[i].posx>=width){
+                asteroides[i].posx = width-dmin;
+                asteroides[i].vx *= -1;
+            }
+            if(asteroides[i].posy<=0){
+                asteroides[i].posy = dmin;
+                asteroides[i].vy *= -1;
+            }
+            else if(asteroides[i].posy>=height){
+                asteroides[i].posy = height-dmin;
+                asteroides[i].vy *= -1;
+            }                
+            for(int j=i+1; j<datos.num_asteroides; j++){
+                
+                double distancia=sqrt( pow( (asteroides[i].posx-asteroides[j].posx),2)+pow((asteroides[i].posx-asteroides[j].posx), 2) );
+                if (distancia <= dmin){
+                    double temp = asteroides[i].vx;
+                    asteroides[i].vx = asteroides[j].vx;
+                    asteroides[j].vx = temp;
+                    temp = asteroides[i].vy;
+                    asteroides[i].vy = asteroides[j].vy;
+                    asteroides[j].vy = temp;
+                    break;
+                }
+            }
         }
     }
 
