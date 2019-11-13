@@ -8,8 +8,8 @@ using namespace std;
 //Constantes dadas en el enunciado
 constexpr double tiempo = 0.1;
 constexpr double dmin = 5.0;
-constexpr int width = 200;
-constexpr int height = 200;
+constexpr double width = 200.0;
+constexpr double height = 200.0;
 constexpr int m = 10000;
 constexpr int sdm = 50;
 constexpr double G=6.67e-5;
