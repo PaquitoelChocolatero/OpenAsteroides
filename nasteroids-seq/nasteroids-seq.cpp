@@ -205,7 +205,7 @@ int main(int argc, char *argv[]){
         for(int i=0; i<datos.num_asteroides; i++){
         
             //Creamos un vector con todos los asteroides con los que colisiona cada asteroide
-            vector<Cuerpo> choques;
+            vector<Asteroide> choques;
         
             //Si llegamos al borde colocamos el asteroide 5 posiciones alejado de él e invertimos su velocidad
             if(asteroides[i].posx<=0){
@@ -226,13 +226,13 @@ int main(int argc, char *argv[]){
             }             
 
             //Añadimos el asteroide ed turno
-            choques.push_back(i);
+            choques.push_back(&asteroides[i]);
 
             for(int j=i+1; j<datos.num_asteroides; j++){
                 //Calculamos la distancia entre los dos asteroides
                 double distancia=sqrt( pow( (asteroides[i].posx-asteroides[j].posx),2)+pow((asteroides[i].posx-asteroides[j].posx), 2) );
                 //Añadimos el asteroide a la lista de choques si su distancia es menor que dmin
-                if (distancia <= dmin) choques.push_back(j);
+                if (distancia <= dmin) choques.push_back(&asteroides[j]);
             }
 
             //Si sólo hay un elemento significa que no choca con nadie, luego no hay que hacer la rutina de rebote
@@ -242,12 +242,12 @@ int main(int argc, char *argv[]){
                 double tempy = choques[0].vy;
                 //Iteramos sobre la lista para intercambiar valores
                 for(int i=0; i<choques.size()-1; i++){
-                    asteroides[i].vx = asteroides[i+1].vx;
-                    asteroides[i].vy = asteroides[i+1].vy;
+                    choques[i].vx = choques[i+1].vx;
+                    choques[i].vy = choques[i+1].vy;
                 }
                 //Le damos al último elemento el valor del primero
-                asteroides[choques.size()-1].vx = tempx;
-                asteroides[choques.size()-1].vy = tempy;
+                choques[choques.size()-1].vx = tempx;
+                choques[choques.size()-1].vy = tempy;
             }
         }
     }
