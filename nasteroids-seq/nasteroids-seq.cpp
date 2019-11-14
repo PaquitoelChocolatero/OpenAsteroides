@@ -6,18 +6,18 @@
 using namespace std;
 
 //Constantes dadas en el enunciado
-constexpr double tiempo = 0.1;
-constexpr double dmin = 5.0;
-constexpr double width = 200.0;
-constexpr double height = 200.0;
+constexpr float tiempo = 0.1;
+constexpr float dmin = 5.0;
+constexpr float width = 200.0;
+constexpr float height = 200.0;
 constexpr int m = 10000;
 constexpr int sdm = 50;
-constexpr double G=6.67e-5;
+constexpr float G=6.67e-5;
 
 //La clase Cuerpo engloba a planetas y asteroides
 class Cuerpo{
     public:
-        double posx, posy, masa, vx, vy;
+        float posx, posy, masa, vx, vy;
 
         void set(double x ,double y, double m) { posx = x; posy = y; masa = m; vx = 0; vy=0;};
 };
@@ -54,12 +54,12 @@ void init(Datos d, Asteroide *asteroides, Planeta *planetas){
     normal_distribution<double> mdist{m, sdm};
 
     for (int i = 0; i<d.num_asteroides; i++){
-        double posx = xdist(re);
-        double posy = ydist(re);
-        double masa = mdist(re);        
+        float posx = xdist(re);
+        float posy = ydist(re);
+        float masa = mdist(re);        
         asteroides[i].set(posx, posy, masa);
-    }
-    double posx, posy, masa;
+    }c
+    float posx, posy, masa;
     for (int i=0; i<d.num_planetas; i++){
         int lateral = i%4;
         switch (lateral){
@@ -109,24 +109,24 @@ void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
 //      NO SE MODIFICAN LAS POSICIONES: esto es para luego modificar solo las de los asteroides.
 //La idea es ejecutar esto para cada par de cuerpos O(n²-n) una vez calculado el tiempo
 void atraccion(Cuerpo &c1, Cuerpo &c2){
-    double distancia=sqrt( pow( (c1.posx-c2.posx),2)+pow((c1.posx-c2.posx), 2) );
+    float distancia=sqrt( pow( (c1.posx-c2.posx),2)+pow((c1.posx-c2.posx), 2) );
     //Calculos del enunciado
     if(distancia>dmin){
-        double pendiente=(c1.posy-c2.posy)/(c1.posx - c2.posx);
+        float pendiente=(c1.posy-c2.posy)/(c1.posx - c2.posx);
         if(pendiente>1){
             pendiente=1;
         }else if(pendiente<-1){
             pendiente=-1;
         }
 
-        double alpha = atan(pendiente);
+        float alpha = atan(pendiente);
 
-        double f = (G*c1.masa*c2.masa)/(distancia*distancia);
+        float f = (G*c1.masa*c2.masa)/(distancia*distancia);
         if(f>100){
             f=100;
         }
         //fuerza[0]=fuerzax, fuerza[1]=fuerzay
-        double fuerza[]{
+        float fuerza[]{
             (f)*cos(alpha), 
             (f)*sin(alpha)
         };
@@ -205,7 +205,7 @@ int main(int argc, char *argv[]){
         for(int i=0; i<datos.num_asteroides; i++){
         
             //Creamos un vector con todos los asteroides con los que colisiona cada asteroide
-            vector<Asteroide> choques;
+            vector<Asteroide*> choques;
         
             //Si llegamos al borde colocamos el asteroide 5 posiciones alejado de él e invertimos su velocidad
             if(asteroides[i].posx<=0){
@@ -232,22 +232,25 @@ int main(int argc, char *argv[]){
                 //Calculamos la distancia entre los dos asteroides
                 double distancia=sqrt( pow( (asteroides[i].posx-asteroides[j].posx),2)+pow((asteroides[i].posx-asteroides[j].posx), 2) );
                 //Añadimos el asteroide a la lista de choques si su distancia es menor que dmin
-                if (distancia <= dmin) choques.push_back(&asteroides[j]);
+                if (distancia <= dmin) {
+                    choques.push_back(&asteroides[j]);
+                }
             }
 
             //Si sólo hay un elemento significa que no choca con nadie, luego no hay que hacer la rutina de rebote
             if(choques.size() != 1){
                 //Guardamos los valores del primer asteroide
-                double tempx = choques[0].vx;
-                double tempy = choques[0].vy;
+                double tempx = choques[0]->vx;
+                double tempy = choques[0]->vy;
                 //Iteramos sobre la lista para intercambiar valores
-                for(int i=0; i<choques.size()-1; i++){
-                    choques[i].vx = choques[i+1].vx;
-                    choques[i].vy = choques[i+1].vy;
+                for(auto i = choques.begin(); i<choques.end()-1; ++i){
+                    auto sig = next(i,1);
+                    (*i)->vx = (*sig)->vx;
+                    (*i)->vy = (*sig)->vy;
                 }
                 //Le damos al último elemento el valor del primero
-                choques[choques.size()-1].vx = tempx;
-                choques[choques.size()-1].vy = tempy;
+                choques[choques.size()-1]->vx = tempx;
+                choques[choques.size()-1]->vy = tempy;
             }
         }
     }
