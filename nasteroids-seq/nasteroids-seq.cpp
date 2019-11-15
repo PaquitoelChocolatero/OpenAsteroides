@@ -10,7 +10,7 @@ constexpr float tiempo = 0.1;
 constexpr float dmin = 5.0;
 constexpr float width = 200.0;
 constexpr float height = 200.0;
-constexpr int m = 10000;
+constexpr int m = 1000;
 constexpr int sdm = 50;
 constexpr float G=6.67e-5;
 
@@ -58,7 +58,7 @@ void init(Datos d, Asteroide *asteroides, Planeta *planetas){
         float posy = ydist(re);
         float masa = mdist(re);        
         asteroides[i].set(posx, posy, masa);
-    }c
+    }
     float posx, posy, masa;
     for (int i=0; i<d.num_planetas; i++){
         int lateral = i%4;
@@ -94,6 +94,7 @@ void init(Datos d, Asteroide *asteroides, Planeta *planetas){
 // Funcion para escribir en un fichero los valores iniciales
 void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
     ofstream init_file ("init_conf.txt");
+    init_file.precision(3);
     init_file << d.num_asteroides << " " << d.num_iteraciones << " " << d.num_planetas << " " << d.semilla << endl;
      
     for (int i=0; i<d.num_asteroides; ++i){
