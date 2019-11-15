@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -6,18 +7,18 @@
 using namespace std;
 
 //Constantes dadas en el enunciado
-constexpr float tiempo = 0.1;
-constexpr float dmin = 5.0;
-constexpr float width = 200.0;
-constexpr float height = 200.0;
+constexpr double tiempo = 0.1;
+constexpr double dmin = 5.0;
+constexpr double width = 200.0;
+constexpr double height = 200.0;
 constexpr int m = 1000;
 constexpr int sdm = 50;
-constexpr float G=6.67e-5;
+constexpr double G=6.67e-5;
 
 //La clase Cuerpo engloba a planetas y asteroides
 class Cuerpo{
     public:
-        float posx, posy, masa, vx, vy;
+        double posx, posy, masa, vx, vy;
 
         void set(double x ,double y, double m) { posx = x; posy = y; masa = m; vx = 0; vy=0;};
 };
@@ -54,12 +55,12 @@ void init(Datos d, Asteroide *asteroides, Planeta *planetas){
     normal_distribution<double> mdist{m, sdm};
 
     for (int i = 0; i<d.num_asteroides; i++){
-        float posx = xdist(re);
-        float posy = ydist(re);
-        float masa = mdist(re);        
+        double posx = xdist(re);
+        double posy = ydist(re);
+        double masa = mdist(re);        
         asteroides[i].set(posx, posy, masa);
     }
-    float posx, posy, masa;
+    double posx, posy, masa;
     for (int i=0; i<d.num_planetas; i++){
         int lateral = i%4;
         switch (lateral){
@@ -94,14 +95,13 @@ void init(Datos d, Asteroide *asteroides, Planeta *planetas){
 // Funcion para escribir en un fichero los valores iniciales
 void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
     ofstream init_file ("init_conf.txt");
-    init_file.precision(3);
-    init_file << d.num_asteroides << " " << d.num_iteraciones << " " << d.num_planetas << " " << d.semilla << endl;
+    init_file << fixed << setprecision(3) << d.num_asteroides << " " << d.num_iteraciones << " " << d.num_planetas << "  " << d.semilla << endl;
      
     for (int i=0; i<d.num_asteroides; ++i){
-        init_file << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].masa << endl;
+        init_file << fixed << setprecision(3) << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].masa << endl;
     }
     for (int i=0; i<d.num_planetas; ++i){
-       init_file << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
+       init_file << fixed << setprecision(3) << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
     }
     init_file.close();
 }
@@ -110,24 +110,24 @@ void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
 //      NO SE MODIFICAN LAS POSICIONES: esto es para luego modificar solo las de los asteroides.
 //La idea es ejecutar esto para cada par de cuerpos O(n²-n) una vez calculado el tiempo
 void atraccion(Cuerpo &c1, Cuerpo &c2){
-    float distancia=sqrt( pow( (c1.posx-c2.posx),2)+pow((c1.posx-c2.posx), 2) );
+    double distancia=sqrt( pow( (c1.posx-c2.posx),2)+pow((c1.posx-c2.posx), 2) );
     //Calculos del enunciado
     if(distancia>dmin){
-        float pendiente=(c1.posy-c2.posy)/(c1.posx - c2.posx);
+        double pendiente=(c1.posy-c2.posy)/(c1.posx - c2.posx);
         if(pendiente>1){
             pendiente=1;
         }else if(pendiente<-1){
             pendiente=-1;
         }
 
-        float alpha = atan(pendiente);
+        double alpha = atan(pendiente);
 
-        float f = (G*c1.masa*c2.masa)/(distancia*distancia);
+        double f = (G*c1.masa*c2.masa)/(distancia*distancia);
         if(f>100){
             f=100;
         }
         //fuerza[0]=fuerzax, fuerza[1]=fuerzay
-        float fuerza[]{
+        double fuerza[]{
             (f)*cos(alpha), 
             (f)*sin(alpha)
         };
