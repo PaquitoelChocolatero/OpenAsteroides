@@ -1,4 +1,3 @@
-#include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -7,24 +6,20 @@
 using namespace std;
 
 //Constantes dadas en el enunciado
-constexpr float tiempo = 0.1;
-constexpr float dmin = 5.0;
-constexpr float width = 200.0;
-constexpr float height = 200.0;
-
-constexpr int m = 1000;
+constexpr double tiempo = 0.1;
+constexpr double dmin = 5.0;
+constexpr int width = 200;
+constexpr int height = 200;
+constexpr int m = 10000;
 constexpr int sdm = 50;
 constexpr double G=6.67e-5;
 
 //La clase Cuerpo engloba a planetas y asteroides
 class Cuerpo{
     public:
+        double posx, posy, masa, vx, vy;
 
-        float posx, posy, masa, vx, vy;
-        float fuerza[2]; 
-
-
-        void set(float x ,float y, float m) { posx = x; posy = y; masa = m; vx = 0; vy=0; fuerza[0]=0; fuerza[1]=0;};
+        void set(double x ,double y, double m) { posx = x; posy = y; masa = m; vx = 0; vy=0;};
 };
 
 class Planeta : public Cuerpo {  
@@ -34,20 +29,27 @@ class Planeta : public Cuerpo {
 class Asteroide : public Cuerpo {
     public:
         void Mover();
-        void calcularVelocidad();
 };
-
-//Calcula la velocidad de un asteroide y anula su fuerza
-void Asteroide::calcularVelocidad(){
-    //V = V0 + a*t
-        vx += (fuerza[0]/masa)*tiempo;
-        vy += (fuerza[1]/masa)*tiempo;
-        fuerza[0]=0;
-        fuerza[1]=0;
-}
 
 //Función que mueve al asteroide cambiando su posición, velocidad y tiempo transcurrido
 void Asteroide::Mover(){
+    //Si llegamos al borde colocamos el asteroide 5 posiciones alejado de él e invertimos su velocidad
+    if(posx<=0){
+        posx = dmin;
+        vx *= -1;
+    }
+    else if(posx>=width){
+        posx = width-dmin;
+        vx *= -1;
+    }
+    if(posy<=0){
+        posy = dmin;
+        vy *= -1;
+    }
+    else if(posy>=height){
+        posy = height-dmin;
+        vy *= -1;
+    }
     //Movemos el asteroide
     posx = posx + vx*tiempo;
     posy = posy + vy*tiempo;
@@ -64,9 +66,9 @@ typedef struct {
 void init(Datos d, Asteroide *asteroides, Planeta *planetas){
     unsigned long int seed = d.semilla;
     default_random_engine re{seed};
-    uniform_real_distribution<float> xdist{0.0, std::nextafter(width, std::numeric_limits<float>::max())};
-    uniform_real_distribution<float> ydist{0.0, std::nextafter(height,std::numeric_limits<float>::max())};
-    normal_distribution<float> mdist{m, sdm};
+    uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
+    uniform_real_distribution<double> ydist{0.0, std::nextafter(height,std::numeric_limits<double>::max())};
+    normal_distribution<double> mdist{m, sdm};
 
     for (int i = 0; i<d.num_asteroides; i++){
         double posx = xdist(re);
@@ -74,7 +76,7 @@ void init(Datos d, Asteroide *asteroides, Planeta *planetas){
         double masa = mdist(re);        
         asteroides[i].set(posx, posy, masa);
     }
-    float posx, posy, masa;
+    double posx, posy, masa;
     for (int i=0; i<d.num_planetas; i++){
         int lateral = i%4;
         switch (lateral){
@@ -109,13 +111,13 @@ void init(Datos d, Asteroide *asteroides, Planeta *planetas){
 // Funcion para escribir en un fichero los valores iniciales
 void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
     ofstream init_file ("init_conf.txt");
-    init_file << fixed << setprecision(3) << d.num_asteroides << " " << d.num_iteraciones << " " << d.num_planetas << "  " << d.semilla << endl;
+    init_file << d.num_asteroides << " " << d.num_iteraciones << " " << d.num_planetas << " " << d.semilla << endl;
      
     for (int i=0; i<d.num_asteroides; ++i){
-        init_file << fixed << setprecision(3) << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].masa << endl;
+        init_file << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].masa << endl;
     }
     for (int i=0; i<d.num_planetas; ++i){
-       init_file << fixed << setprecision(3) << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
+       init_file << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
     }
     init_file.close();
 }
@@ -146,14 +148,23 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
             (f)*sin(alpha)
         };
         
-        c1.fuerza[0]+=fuerza[0];
-        c1.fuerza[1]+=fuerza[1];
-        c2.fuerza[0]-=fuerza[0];
-        c2.fuerza[1]-=fuerza[1];
-          
+        //V = V0 + a*t
+        c1.vx += (fuerza[0]/c1.masa)*tiempo;
+        c1.vy += (fuerza[1]/c1.masa)*tiempo;
+        c2.vx -= (fuerza[0]/c2.masa)*tiempo;
+        c2.vy -= (fuerza[1]/c2.masa)*tiempo;       
+    }
+    //Si la distancia es menor que la mínima intercambiamos los valores de velocidad
+    else{
+        //Usamos una variable temporal
+        double temp = c1.vx;
+        c1.vx = c2.vx;
+        c2.vx = temp;
+        temp = c1.vy;
+        c1.vy = c2.vy;
+        c2.vy = temp;
     }
 }
-
 
 Datos parseArgs(int argc, char *argv[]){
      //Si el número de argumentos no es el correcto se imprime el uso correcto de la aplicación 
@@ -214,61 +225,10 @@ int main(int argc, char *argv[]){
                     }
                 }
             }
-            asteroides[i].calcularVelocidad();
+
             //Movemos el asteroide de turno 
             asteroides[i].Mover();
-        }
-        
-        for(int i=0; i<datos.num_asteroides; i++){
-        
-            //Creamos un vector con todos los asteroides con los que colisiona cada asteroide
-            vector<Asteroide*> choques;
-        
-            //Si llegamos al borde colocamos el asteroide 5 posiciones alejado de él e invertimos su velocidad
-            if(asteroides[i].posx<=0){
-                asteroides[i].posx = dmin;
-                asteroides[i].vx *= -1;
-            }
-            else if(asteroides[i].posx>=width){
-                asteroides[i].posx = width-dmin;
-                asteroides[i].vx *= -1;
-            }
-            if(asteroides[i].posy<=0){
-                asteroides[i].posy = dmin;
-                asteroides[i].vy *= -1;
-            }
-            else if(asteroides[i].posy>=height){
-                asteroides[i].posy = height-dmin;
-                asteroides[i].vy *= -1;
-            }             
-
-            //Añadimos el asteroide ed turno
-            choques.push_back(&asteroides[i]);
-
-            for(int j=i+1; j<datos.num_asteroides; j++){
-                //Calculamos la distancia entre los dos asteroides
-                float distancia=sqrt( pow( (asteroides[i].posx-asteroides[j].posx),2)+pow((asteroides[i].posx-asteroides[j].posx), 2) );
-                //Añadimos el asteroide a la lista de choques si su distancia es menor que dmin
-                if (distancia <= dmin) {
-                    choques.push_back(&asteroides[j]);
-                }
-            }
-
-            //Si sólo hay un elemento significa que no choca con nadie, luego no hay que hacer la rutina de rebote
-            if(choques.size() != 1){
-                //Guardamos los valores del primer asteroide
-                float tempx = choques[0]->vx;
-                float tempy = choques[0]->vy;
-                //Iteramos sobre la lista para intercambiar valores
-                for(auto i = choques.begin(); i<choques.end()-1; ++i){
-                    auto sig = next(i,1);
-                    (*i)->vx = (*sig)->vx;
-                    (*i)->vy = (*sig)->vy;
-                }
-                //Le damos al último elemento el valor del primero
-                choques[choques.size()-1]->vx = tempx;
-                choques[choques.size()-1]->vy = tempy;
-            }
+            
         }
     }
 
@@ -282,7 +242,7 @@ int main(int argc, char *argv[]){
     }
     out_file.close();
 
-    chrono::duration<float> elapsed = chrono::duration_cast<chrono::duration<float>>(end-start);
+    chrono::duration<double> elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);
 
     cout<< "Time elapsed: " <<elapsed.count()<<endl;
 
