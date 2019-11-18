@@ -136,10 +136,13 @@ void init(Datos d, Asteroide *asteroides, Planeta *planetas){
 void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
     ofstream init_file ("init_conf.txt");
     init_file << d.num_asteroides << " " << d.num_iteraciones << " " << d.num_planetas << " " << d.semilla << endl;
-     
+    
+    #pragma omp parallel for
     for (int i=0; i<d.num_asteroides; ++i){
         init_file << fixed << setprecision(3) << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].masa << endl;
     }
+
+    #pragma omp parallel for
     for (int i=0; i<d.num_planetas; ++i){
        init_file << fixed << setprecision(3) << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
     }
@@ -150,7 +153,7 @@ void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
 //Se calcula la atraccion entre dos cuerpos y se modifican sus velocidades usando esa fuerza.
 //      NO SE MODIFICAN LAS POSICIONES: esto es para luego modificar solo las de los asteroides.
 //La idea es ejecutar esto para cada par de cuerpos O(n²-n) una vez calculado el tiempo
-void atraccion(Cuerpo &c1, Cuerpo &c2){
+double* atraccion(Cuerpo &c1, Cuerpo &c2){
     double fuerza[2];
     double distancia=sqrt( pow( (c1.posx-c2.posx),2)+pow((c1.posx-c2.posx), 2) );
     //Calculos del enunciado
@@ -172,14 +175,14 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         fuerza[1]=(G*c1.masa*c2.masa)/(distancia*distancia)*sin(alpha);
         
 
-        //return fuerza;
+        return fuerza;
         //V = V0 + a*t
-        
+        /*
         c1.vx += (fuerza[0]/c1.masa)*tiempo;
         c1.vy += (fuerza[1]/c1.masa)*tiempo;
         c2.vx -= (fuerza[0]/c2.masa)*tiempo;
         c2.vy -= (fuerza[1]/c2.masa)*tiempo;       
-           
+        */   
     }
     //Si la distancia es menor que la mínima intercambiamos los valores de velocidad
     else{
@@ -191,10 +194,10 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         temp = c1.vy;
         c1.vy = c2.vy;
         c2.vy = temp;
-
-        //return fuerza;
         
-        }    
+        }
+        return fuerza;
+
     }
     
 }
@@ -213,16 +216,18 @@ int main(int argc, char *argv[]){
         }
     }
     
+    double [datos.num_asteroides][datos.num_asteroides+datos.num_planetas];
+
    //Declaramos los cuerpos
     Planeta *planetas = new Planeta[datos.num_planetas];
     Asteroide *asteroides = new Asteroide[datos.num_asteroides];
 
     init(datos, asteroides, planetas);
        
-    //#pragma omp paralell
-    //{
-        writeInit(datos, asteroides, planetas);   
-    //} 
+   
+
+    writeInit(datos, asteroides, planetas);   
+    
 
     //double fuerzas[datos.num_asteroides][datos.num_asteroides+datos.num_planetas][2];
 
@@ -235,7 +240,7 @@ int main(int argc, char *argv[]){
         
         //Cada hilo recorre una porcion del array de cuerpos
 
-        //#pragma omp parallel for ordered
+        #pragma omp parallel for ordered
 
             //Recorremos sólo los asteroides (los planetas son fijos)
             for(int i=0; i<datos.num_asteroides; i++){
@@ -249,7 +254,7 @@ int main(int argc, char *argv[]){
                         if (i<datos.num_asteroides){
                             //Si j es un asteroide
                             if(j<datos.num_asteroides){
-                                /*fuerzas[i][j] =*/ atraccion(asteroides[i], asteroides[j]);
+                                atraccion(asteroides[i], asteroides[j]);
                             }
                             //Si es un planeta
                             else{
