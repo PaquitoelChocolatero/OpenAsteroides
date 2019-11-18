@@ -156,6 +156,15 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         c2.vy -= (fuerza[1]/c2.masa)*tiempo;       
     }
     //Si la distancia es menor que la mínima intercambiamos los valores de velocidad
+    else{
+        double temp = c1.vx;
+        c1.vx = c2.vx;
+        c2.vx = temp;
+        temp = c1.vy;
+        c1.vy = c2.vy;
+        c2.vy = temp;
+    
+    }
     
 }
 
@@ -176,22 +185,9 @@ Datos parseArgs(int argc, char *argv[]){
     return datos;   
 }
 
-void rebotes(Asteroide[] asteroides){
-    for(int i=0; i<( sizeof(asteroides)/sizeof(asteroide[0]) - 1 ); i++){
-        double distancia=sqrt( pow( (asteroides[i].posx-asteroides[i+1].posx),2)+pow((asteroides[i].posx-asteroides[i+1].posx), 2) );
-        double temp = c1.vx;
-        c1.vx = c2.vx;
-        c2.vx = temp;
-        temp = c1.vy;
-        c1.vy = c2.vy;
-        c2.vy = temp;
-    
-    }
-}
-
 int main(int argc, char *argv[]){
 
-    omp_set_num_threads(25);
+    omp_set_num_threads(2);
       
     Datos datos;
     try{
@@ -209,10 +205,10 @@ int main(int argc, char *argv[]){
 
     init(datos, asteroides, planetas);
        
-    #pragma omp paralell
-    {
+    //#pragma omp paralell
+    //{
         writeInit(datos, asteroides, planetas);   
-    } 
+    //} 
 
     auto start=chrono::high_resolution_clock::now();
 
