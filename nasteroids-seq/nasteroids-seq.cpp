@@ -7,17 +7,11 @@
 using namespace std;
 
 //Constantes dadas en el enunciado
-<<<<<<< HEAD
 constexpr float tiempo = 0.1;
 constexpr float dmin = 5.0;
 constexpr float width = 200.0;
 constexpr float height = 200.0;
-=======
-constexpr double tiempo = 0.1;
-constexpr double dmin = 5.0;
-constexpr double width = 200.0;
-constexpr double height = 200.0;
->>>>>>> d195e4d179b7fe0c1d235e843c201c8538a067a9
+
 constexpr int m = 1000;
 constexpr int sdm = 50;
 constexpr double G=6.67e-5;
@@ -25,12 +19,10 @@ constexpr double G=6.67e-5;
 //La clase Cuerpo engloba a planetas y asteroides
 class Cuerpo{
     public:
-<<<<<<< HEAD
+
         float posx, posy, masa, vx, vy;
         float fuerza[2]; 
-=======
-        double posx, posy, masa, vx, vy;
->>>>>>> d195e4d179b7fe0c1d235e843c201c8538a067a9
+
 
         void set(float x ,float y, float m) { posx = x; posy = y; masa = m; vx = 0; vy=0; fuerza[0]=0; fuerza[1]=0;};
 };
@@ -82,11 +74,7 @@ void init(Datos d, Asteroide *asteroides, Planeta *planetas){
         double masa = mdist(re);        
         asteroides[i].set(posx, posy, masa);
     }
-<<<<<<< HEAD
     float posx, posy, masa;
-=======
-    double posx, posy, masa;
->>>>>>> d195e4d179b7fe0c1d235e843c201c8538a067a9
     for (int i=0; i<d.num_planetas; i++){
         int lateral = i%4;
         switch (lateral){
