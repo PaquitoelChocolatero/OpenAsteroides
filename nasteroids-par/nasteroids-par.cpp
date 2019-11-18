@@ -4,6 +4,7 @@
 #include <random>
 #include <chrono>
 #include <omp.h>
+#include <iomanip>
 
 using namespace std;
 
@@ -20,18 +21,45 @@ constexpr double G=6.67e-5;
 class Cuerpo{
     public:
         double posx, posy, masa, vx, vy;
-
+        string type;
         void set(double x ,double y, double m) { posx = x; posy = y; masa = m; vx = 0; vy=0;};
 };
 
-class Planeta : public Cuerpo {  
+class Planeta : public Cuerpo {
+    string type="planeta";  
 
 };
 
 class Asteroide : public Cuerpo {
+    string type="asteroide";
     public:
         void Mover();
 };
+
+typedef struct {
+    int num_asteroides;
+    int num_iteraciones;
+    int num_planetas; 
+    int semilla;
+}Datos;
+
+Datos parseArgs(int argc, char *argv[]){
+     //Si el número de argumentos no es el correcto se imprime el uso correcto de la aplicación 
+    if (argc<5){
+        throw int(1);
+    }
+    Datos datos;
+    try{
+        datos.num_asteroides = stoi(argv[1]);
+        datos.num_iteraciones = stoi(argv[2]);    
+        datos.num_planetas = stoi(argv[3]);     
+        datos.semilla = stoi(argv[4]);
+    }catch(invalid_argument &e){
+        throw int(1);
+    }
+    return datos;   
+}
+
 
 //Función que mueve al asteroide cambiando su posición, velocidad y tiempo transcurrido
 void Asteroide::Mover(){
@@ -58,12 +86,6 @@ void Asteroide::Mover(){
 }
 
 
-typedef struct {
-    int num_asteroides;
-    int num_iteraciones;
-    int num_planetas; 
-    int semilla;
-}Datos;
 
 void init(Datos d, Asteroide *asteroides, Planeta *planetas){
     unsigned long int seed = d.semilla;
@@ -116,10 +138,10 @@ void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
     init_file << d.num_asteroides << " " << d.num_iteraciones << " " << d.num_planetas << " " << d.semilla << endl;
      
     for (int i=0; i<d.num_asteroides; ++i){
-        init_file << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].masa << endl;
+        init_file << fixed << setprecision(3) << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].masa << endl;
     }
     for (int i=0; i<d.num_planetas; ++i){
-       init_file << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
+       init_file << fixed << setprecision(3) << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
     }
     init_file.close();
 }
@@ -129,6 +151,7 @@ void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
 //      NO SE MODIFICAN LAS POSICIONES: esto es para luego modificar solo las de los asteroides.
 //La idea es ejecutar esto para cada par de cuerpos O(n²-n) una vez calculado el tiempo
 void atraccion(Cuerpo &c1, Cuerpo &c2){
+    double fuerza[2];
     double distancia=sqrt( pow( (c1.posx-c2.posx),2)+pow((c1.posx-c2.posx), 2) );
     //Calculos del enunciado
     if(distancia>dmin){
@@ -144,50 +167,41 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         //double fuerzay = (G*c1.masa*c2.masa)/(distancia*distancia)*sen(alpha) ;
 
         //fuerza[0]=fuerzax, fuerza[1]=fuerzay
-        double fuerza[]{
-            (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha), 
-            (G*c1.masa*c2.masa)/(distancia*distancia)*sin(alpha)
-        };
+             
+        fuerza[0]=(G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha);
+        fuerza[1]=(G*c1.masa*c2.masa)/(distancia*distancia)*sin(alpha);
         
+
+        //return fuerza;
         //V = V0 + a*t
+        
         c1.vx += (fuerza[0]/c1.masa)*tiempo;
         c1.vy += (fuerza[1]/c1.masa)*tiempo;
         c2.vx -= (fuerza[0]/c2.masa)*tiempo;
         c2.vy -= (fuerza[1]/c2.masa)*tiempo;       
+           
     }
     //Si la distancia es menor que la mínima intercambiamos los valores de velocidad
     else{
+        if(c1.type=="asteroide" && c2.type=="asteroide"){
+
         double temp = c1.vx;
         c1.vx = c2.vx;
         c2.vx = temp;
         temp = c1.vy;
         c1.vy = c2.vy;
         c2.vy = temp;
-    
-    }
-    
-}
 
-Datos parseArgs(int argc, char *argv[]){
-     //Si el número de argumentos no es el correcto se imprime el uso correcto de la aplicación 
-    if (argc<5){
-        throw int(1);
+        //return fuerza;
+        
+        }    
     }
-    Datos datos;
-    try{
-        datos.num_asteroides = stoi(argv[1]);
-        datos.num_iteraciones = stoi(argv[2]);    
-        datos.num_planetas = stoi(argv[3]);     
-        datos.semilla = stoi(argv[4]);
-    }catch(invalid_argument &e){
-        throw int(1);
-    }
-    return datos;   
+    
 }
 
 int main(int argc, char *argv[]){
 
-    omp_set_num_threads(2);
+    omp_set_num_threads(5);
       
     Datos datos;
     try{
@@ -210,6 +224,8 @@ int main(int argc, char *argv[]){
         writeInit(datos, asteroides, planetas);   
     //} 
 
+    //double fuerzas[datos.num_asteroides][datos.num_asteroides+datos.num_planetas][2];
+
     auto start=chrono::high_resolution_clock::now();
 
     //Bucle principal de la simulación
@@ -218,31 +234,36 @@ int main(int argc, char *argv[]){
         //Calculo de la fuerza de atracción entre cada cuerpo -> O(n_asteroides²-n_asteroides+n_asteroides*n_planetas)
         
         //Cada hilo recorre una porcion del array de cuerpos
-        #pragma omp parallel for        
+
+        //#pragma omp parallel for ordered
+
             //Recorremos sólo los asteroides (los planetas son fijos)
             for(int i=0; i<datos.num_asteroides; i++){
                 //Se sienten atraídos por todos los cuerpos
 
                 //Cada hilo calcula la atraccion de un rango de cuerpos distintos
-                #pragma omp parallel for
+                #pragma omp parallel for 
                 
                     for(int j=i+1; j<(datos.num_asteroides + datos.num_planetas)-1; j++){
                         //Si i es mayor o igual que el numero de asteroides es que ambos son planetas y no hace falta calcular la fuerza entre planetas
                         if (i<datos.num_asteroides){
                             //Si j es un asteroide
                             if(j<datos.num_asteroides){
-                                atraccion(asteroides[i], asteroides[j]);
+                                /*fuerzas[i][j] =*/ atraccion(asteroides[i], asteroides[j]);
                             }
                             //Si es un planeta
                             else{
-                                atraccion(asteroides[i], planetas[j-datos.num_asteroides]);
+                                /*fuerzas[i][j] =*/ atraccion(asteroides[i], planetas[j-datos.num_asteroides]);
                             }
                         }
                     }
+                
+                //asteroides[i].vx= (fuerza[0]/asteroides[i].masa)*tiempo;
+                //asteroides[i].vy= (fuerza[1]/asteroides[i].masa)*tiempo;
 
                 //Movemos el asteroide de turno 
+               
                 asteroides[i].Mover();
-                
             }
 
         
@@ -254,7 +275,7 @@ int main(int argc, char *argv[]){
     ofstream out_file ("output.txt");
      
     for (int i=0; i<datos.num_asteroides; ++i){
-        out_file << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].vx << " " << asteroides[i].vy << " "  << asteroides[i].masa << endl;
+        out_file << fixed << setprecision(3) << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].vx << " " << asteroides[i].vy << " "  << asteroides[i].masa << endl;
     }
     out_file.close();
 

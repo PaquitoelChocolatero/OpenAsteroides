@@ -3,6 +3,9 @@
 #include <string>
 #include <random>
 #include <chrono>
+#include <omp.h>
+#include <iomanip>
+
 using namespace std;
 
 //Constantes dadas en el enunciado
@@ -10,23 +13,26 @@ constexpr double tiempo = 0.1;
 constexpr double dmin = 5.0;
 constexpr int width = 200;
 constexpr int height = 200;
-constexpr int m = 10000;
+constexpr int m = 1000;
 constexpr int sdm = 50;
 constexpr double G=6.67e-5;
 
 //La clase Cuerpo engloba a planetas y asteroides
+
 class Cuerpo{
     public:
         double posx, posy, masa, vx, vy;
-
+        string type;
         void set(double x ,double y, double m) { posx = x; posy = y; masa = m; vx = 0; vy=0;};
 };
 
-class Planeta : public Cuerpo {  
+class Planeta : public Cuerpo {
+    string type="planeta";  
 
 };
 
 class Asteroide : public Cuerpo {
+    string type="asteroide";
     public:
         void Mover();
 };
@@ -114,13 +120,14 @@ void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
     init_file << d.num_asteroides << " " << d.num_iteraciones << " " << d.num_planetas << " " << d.semilla << endl;
      
     for (int i=0; i<d.num_asteroides; ++i){
-        init_file << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].masa << endl;
+        init_file << fixed << setprecision(3) << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].masa << endl;
     }
     for (int i=0; i<d.num_planetas; ++i){
-       init_file << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
+       init_file << fixed << setprecision(3) << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
     }
     init_file.close();
 }
+
 
 //Se calcula la atraccion entre dos cuerpos y se modifican sus velocidades usando esa fuerza.
 //      NO SE MODIFICAN LAS POSICIONES: esto es para luego modificar solo las de los asteroides.
@@ -137,15 +144,13 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
         }
 
         double alpha = atan(pendiente);
+        //double fuerzax = (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha) ;
+        //double fuerzay = (G*c1.masa*c2.masa)/(distancia*distancia)*sen(alpha) ;
 
-        double f = (G*c1.masa*c2.masa)/(distancia*distancia);
-        if(f>100){
-            f=100;
-        }
         //fuerza[0]=fuerzax, fuerza[1]=fuerzay
         double fuerza[]{
-            (f)*cos(alpha), 
-            (f)*sin(alpha)
+            (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha), 
+            (G*c1.masa*c2.masa)/(distancia*distancia)*sin(alpha)
         };
         
         //V = V0 + a*t
@@ -156,14 +161,18 @@ void atraccion(Cuerpo &c1, Cuerpo &c2){
     }
     //Si la distancia es menor que la mínima intercambiamos los valores de velocidad
     else{
-        //Usamos una variable temporal
+        if(c1.type=="asteroide" && c2.type=="asteroide"){
+
         double temp = c1.vx;
         c1.vx = c2.vx;
         c2.vx = temp;
         temp = c1.vy;
         c1.vy = c2.vy;
         c2.vy = temp;
+        
+        }    
     }
+    
 }
 
 Datos parseArgs(int argc, char *argv[]){
@@ -238,7 +247,7 @@ int main(int argc, char *argv[]){
     ofstream out_file ("output.txt");
      
     for (int i=0; i<datos.num_asteroides; ++i){
-        out_file << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].vx << " " << asteroides[i].vy << " "  << asteroides[i].masa << endl;
+        out_file << fixed << setprecision(3) << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].vx << " " << asteroides[i].vy << " "  << asteroides[i].masa << endl;
     }
     out_file.close();
 
