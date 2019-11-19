@@ -15,7 +15,7 @@ using namespace std;
 #define m 1000
 #define sdm 50
 #define G 6.674e-5
-#define num_threads 16
+#define num_threads 3
 
 typedef struct {
     float x;
@@ -134,69 +134,105 @@ int main(int argc, char *argv[]){
         //Para cada asteroide calculamos la atraccion con el resto de elementos
         #pragma omp parallel for
         for (int j = 0; j<num_asteroides; ++j){
-            // Para los elementos de tipo asteroide cuya atraccion no ha sido calculada aun (k = j+1)
-            #pragma omp parallel
-            for (int k = j+1; k<num_asteroides; ++k ){
-                // Calculamos la distancia en modulo
-                float distancia=sqrt( pow( (asteroides[j].posx-asteroides[k].posx),2)+pow((asteroides[j].posx-asteroides[k].posx), 2) );
-                // Si la distancia es mayor que la distancia de rebote
-                if (distancia > dmin){
-                    // Calculamos la pendiente
-                    float pendiente=(asteroides[j].posy-asteroides[k].posy)/(asteroides[j].posx - asteroides[k].posx);
-                    // Truncamos si es mayor que 1 o menor que -1
-                    if(pendiente>1){
-                        pendiente=1;
-                    }else if(pendiente<-1){
-                        pendiente=-1;
+            #pragma omp parallel sections
+            {
+                #pragma omp section
+                {
+                    // Para los elementos de tipo asteroide cuya atraccion no ha sido calculada aun (k = j+1)
+                    float fuerzax=0, fuerzay=0;
+                    #pragma omp parallel for
+                    for (int k = 0; k<num_asteroides; ++k ){
+                        if(k==j){
+                            continue;
+                        }
+                        // Calculamos la distancia en modulo
+                        float distancia=sqrt( pow( (asteroides[j].posx-asteroides[k].posx),2)+pow((asteroides[j].posx-asteroides[k].posx), 2) );
+                        // Si la distancia es mayor que la distancia de rebote
+                        if (distancia > dmin){
+                            // Calculamos la pendiente
+                            float pendiente=(asteroides[j].posy-asteroides[k].posy)/(asteroides[j].posx - asteroides[k].posx);
+                            // Truncamos si es mayor que 1 o menor que -1
+                            if(pendiente>1){
+                                pendiente=1;
+                            }else if(pendiente<-1){
+                                pendiente=-1;
+                            }
+                            //Calculamos el angulo
+                            float alpha = atan(pendiente);
+
+                            //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                            /*
+                            //Calculamos la fuerza entre ambos
+                            float fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha);
+                            float fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha);
+
+                        
+                            // La fuerza tiene el mismo valor pero sentido contrario para cada uno
+                            Fuerza fuerzaj = {fuerzax, fuerzay};
+                            Fuerza fuerzak = {fuerzax*-1, fuerzay*-1};
+
+                            // La añadimos al vector de fuerza de cada uno
+                            #pragma omp critical
+                            asteroides[j].fuerzas.push_back(fuerzaj);
+                            #pragma omp critical    
+                            asteroides[k].fuerzas.push_back(fuerzak);
+                            */
+                            //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+                            if(k>j){
+                                fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha);
+                                fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha);
+                            }
+                            else{
+                                //En otro caso significa que k es menor que j y la fuerza sobre j tendra sentido negativo
+                                fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha)*-1;
+                                fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha)*-1;
+                            }
+                            //En cualquier caso la fuerza sobre k sera calculada mas adelante    
+                            
+                            // La fuerza tiene el mismo valor pero sentido contrario para cada uno
+                            Fuerza fuerzaj = {fuerzax, fuerzay};
+
+                            // La añadimos al vector de fuerza de cada uno    
+                            asteroides[j].fuerzas.push_back(fuerzaj);
+                        }
                     }
-                    //Calculamos el angulo
-                    float alpha = atan(pendiente);
-
-                    //Calculamos la fuerza entre ambos
-                    float fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha);
-                    float fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha);
-
-                    // La fuerza tiene el mismo valor pero sentido contrario para cada uno
-                    Fuerza fuerzaj = {fuerzax, fuerzay};
-                    Fuerza fuerzak = {fuerzax*-1, fuerzay*-1};
-
-                    // La añadimos al vector de fuerza de cada uno
-                    #pragma omp critical
-                    asteroides[j].fuerzas.push_back(fuerzaj);
-                    #pragma omp critical    
-                    asteroides[k].fuerzas.push_back(fuerzak);
                 }
-            }
-            //Fuerza del planeta k sobre el asteroide j
-            #pragma omp parallel for
-            for (int k = 0; k < num_planetas; ++k){
-                // Calculamos la distancia en modulo
-                float distancia=sqrt( pow( (asteroides[j].posx-planetas[k].posx),2)+pow((asteroides[j].posx-planetas[k].posx), 2) );
-                // Si la distancia es mayor que la distancia de rebote
-                if (distancia > dmin){
-                    // Calculamos la pendiente
-                    float pendiente=(asteroides[j].posy-planetas[k].posy)/(asteroides[j].posx - planetas[k].posx);
-                    // Truncamos si es mayor que 1 o menor que -1
-                    if(pendiente>1){
-                        pendiente=1;
-                    }else if(pendiente<-1){
-                        pendiente=-1;
+                #pragma omp section
+                {
+                    float fuerzax, fuerzay;
+                    //Fuerza del planeta k sobre el asteroide j
+                    #pragma omp parallel for
+                    for (int k = 0; k < num_planetas; ++k){
+                        // Calculamos la distancia en modulo
+                        float distancia=sqrt( pow( (asteroides[j].posx-planetas[k].posx),2)+pow((asteroides[j].posx-planetas[k].posx), 2) );
+                        // Si la distancia es mayor que la distancia de rebote
+                        if (distancia > dmin){
+                            // Calculamos la pendiente
+                            float pendiente=(asteroides[j].posy-planetas[k].posy)/(asteroides[j].posx - planetas[k].posx);
+                            // Truncamos si es mayor que 1 o menor que -1
+                            if(pendiente>1){
+                                pendiente=1;
+                            }else if(pendiente<-1){
+                                pendiente=-1;
+                            }
+                            //Calculamos el angulo
+                            float alpha = atan(pendiente);
+
+                            //Calculamos la fuerza entre ambos
+                            fuerzax = (G*asteroides[j].masa*planetas[k].masa)/(distancia*distancia)*cos(alpha);
+                            fuerzay = (G*asteroides[j].masa*planetas[k].masa)/(distancia*distancia)*sin(alpha);
+                            
+                            // La fuerza tiene el mismo valor pero sentido contrario para cada uno
+                            Fuerza fuerzaj = {fuerzax, fuerzay};
+                            
+                            //Seccion critica
+                            asteroides[j].fuerzas.push_back(fuerzaj);
+                        }
                     }
-                    //Calculamos el angulo
-                    float alpha = atan(pendiente);
-
-                    //Calculamos la fuerza entre ambos
-                    float fuerzax = (G*asteroides[j].masa*planetas[k].masa)/(distancia*distancia)*cos(alpha);
-                    float fuerzay = (G*asteroides[j].masa*planetas[k].masa)/(distancia*distancia)*sin(alpha);
-                    
-                    // La fuerza tiene el mismo valor pero sentido contrario para cada uno
-                    Fuerza fuerzaj = {fuerzax, fuerzay};
-                    
-                    //Seccion critica
-                    #pragma omp critical
-                    asteroides[j].fuerzas.push_back(fuerzaj);
                 }
-            }
+
+            }           
         }
 
         // Calculo de la fuerza, la aceleracion, y la velocidad        

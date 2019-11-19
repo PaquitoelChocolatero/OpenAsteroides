@@ -127,11 +127,14 @@ int main(int argc, char *argv[]){
     for (int i = 0; i< num_iteraciones; ++i){
         //Para cada asteroide calculamos la atraccion con el resto de elementos
         for (int j = 0; j<num_asteroides; ++j){
+            float fuerzax=0, fuerzay=0;
             //Declaramos un vector donde alamacenar las fuerzas
             //vector<Fuerza> sumatorio_fuerzas;
             // Para los elementos de tipo asteroide cuya atraccion no ha sido calculada aun (k = j+1)
-            for (int k = j+1; k<num_asteroides; ++k ){
-                
+            for (int k = 0; k<num_asteroides; ++k ){
+                 if(k==j){
+                    continue;
+                }
                 // Calculamos la distancia en modulo
                 float distancia=sqrt( pow( (asteroides[j].posx-asteroides[k].posx),2)+pow((asteroides[j].posx-asteroides[k].posx), 2) );
                 // Si la distancia es mayor que la distancia de rebote
@@ -147,17 +150,41 @@ int main(int argc, char *argv[]){
                     //Calculamos el angulo
                     float alpha = atan(pendiente);
 
+                    //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                    /*
                     //Calculamos la fuerza entre ambos
                     float fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha);
                     float fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha);
-                    
+
+                   
                     // La fuerza tiene el mismo valor pero sentido contrario para cada uno
                     Fuerza fuerzaj = {fuerzax, fuerzay};
                     Fuerza fuerzak = {fuerzax*-1, fuerzay*-1};
 
+                    // La añadimos al vector de fuerza de cada uno
+                    #pragma omp critical
+                    asteroides[j].fuerzas.push_back(fuerzaj);
+                    #pragma omp critical    
+                    asteroides[k].fuerzas.push_back(fuerzak);
+                    */
+                    //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+                    if(k>j){
+                        fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha);
+                        fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha);
+                    }
+                    else{
+                        //En otro caso significa que k es menor que j y la fuerza sobre j tendra sentido negativo
+                        fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha)*-1;
+                        fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha)*-1;
+                    }
+                    //En cualquier caso la fuerza sobre k sera calculada mas adelante    
+                    
+                    // La fuerza tiene el mismo valor pero sentido contrario para cada uno
+                    Fuerza fuerzaj = {fuerzax, fuerzay};
+
                     // La añadimos al vector de fuerza de cada uno    
                     asteroides[j].fuerzas.push_back(fuerzaj);
-                    asteroides[k].fuerzas.push_back(fuerzak);
                 }
             }
             for (int k = 0; k < num_planetas; ++k){
