@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <fstream>
 #include <omp.h>
+#include <chrono>
 
 using namespace std;
 
@@ -44,12 +45,12 @@ void calculoPosicionInicial(long unsigned int seed, int num_asteroides, int num_
     uniform_real_distribution<double> ydist{0.0, std::nextafter(height,std::numeric_limits<double>::max())};
     normal_distribution<double> mdist{m, sdm};
 
-    for (int i = 0; i<num_asteroides; i++){
-        asteroides[i].posx = xdist(re);
-        asteroides[i].posy = ydist(re);
-        asteroides[i].masa = mdist(re);
-        asteroides[i].vx = 0;
-        asteroides[i].vy = 0;        
+    for (int j = 0; j<num_asteroides; j++){
+        asteroides[j].posx = xdist(re);
+        asteroides[j].posy = ydist(re);
+        asteroides[j].masa = mdist(re);
+        asteroides[j].vx = 0;
+        asteroides[j].vy = 0;        
     }
     float masa;
     for (int i=0; i<num_planetas; i++){
@@ -101,7 +102,7 @@ void escribirInit(int num_asteroides, int num_planetas, int num_iteraciones, int
 
 int main(int argc, char *argv[]){
     
-    omp_set_num_threads(4);
+    omp_set_num_threads(num_threads);
 
     // Leer argumentos 
 
@@ -126,6 +127,8 @@ int main(int argc, char *argv[]){
     // Escribimos las posiciones iniciales en un fichero
     escribirInit(num_asteroides, num_planetas, num_iteraciones, semilla, planetas, asteroides );
     
+    auto start=chrono::high_resolution_clock::now();
+    
     //Para cada iteracion
     for (int i = 0; i< num_iteraciones; ++i){
         
@@ -137,10 +140,12 @@ int main(int argc, char *argv[]){
             #pragma omp section
             {   
                 //Para cada asteroide calculamos la atraccion con el resto de elementos
+                #pragma omp parallel for
                 for (int j = 0; j<num_asteroides; ++j){
                     //Declaramos un vector donde alamacenar las fuerzas
                     //vector<Fuerza> sumatorio_fuerzas;
                     // Para los elementos de tipo asteroide cuya atraccion no ha sido calculada aun (k = j+1)
+                    #pragma omp parallel for
                     for (int k = j+1; k<num_asteroides; ++k ){
 
                         // Calculamos la distancia en modulo
@@ -220,13 +225,13 @@ int main(int argc, char *argv[]){
         for (int j = 0; j< num_asteroides; ++j) {            
             //Obtenemos el sumatorio de las fuerzas
             float sum_fuerzax = 0, sum_fuerzay = 0;
-            for (auto fuerza : asteroides[i].fuerzas){
+            for (auto fuerza : asteroides[j].fuerzas){
                 sum_fuerzax += fuerza.x;
                 sum_fuerzay += fuerza.y; 
             }
             //Calculamos la aceleracion
-            float aceleracionx = 1/asteroides[i].masa * sum_fuerzax;
-            float aceleraciony = 1/asteroides[i].masa * sum_fuerzay;
+            float aceleracionx = 1/asteroides[j].masa * sum_fuerzax;
+            float aceleraciony = 1/asteroides[j].masa * sum_fuerzay;
             //Calculamos la velocidad
             asteroides[j].vx += aceleracionx * tiempo;
             asteroides[j].vy += aceleraciony * tiempo;
@@ -238,8 +243,8 @@ int main(int argc, char *argv[]){
 
         //Modificamos la posicion
         for(int j=0; j<num_asteroides; j++){
-            asteroides[j].posx += asteroides[i].vx * tiempo; 
-            asteroides[j].posy += asteroides[i].vy * tiempo;
+            asteroides[j].posx += asteroides[j].vx * tiempo; 
+            asteroides[j].posy += asteroides[j].vy * tiempo;
 
             // Efecto rebote con los muros
             if (asteroides[j].posx <= 0){
@@ -276,19 +281,19 @@ int main(int argc, char *argv[]){
                 }
             }
         }
-                
-
-    
-    
-
     }
 
-   
+    auto end=chrono::high_resolution_clock::now();
+
+    chrono::duration<double> elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);
+    
+    cout << elapsed.count() << endl;
+
     //Escribimos el resultado final
     ofstream out_file("output.txt");
 
-    for (int i=0; i<num_asteroides; ++i){
-        out_file << fixed << setprecision(3) << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].vx << " " << asteroides[i].vy << " "  << asteroides[i].masa << endl;
+    for (int j=0; j<num_asteroides; ++j){
+        out_file << fixed << setprecision(3) << asteroides[j].posx << " " << asteroides[j].posy << " " << asteroides[j].vx << " " << asteroides[j].vy << " "  << asteroides[j].masa << endl;
     }
     out_file.close();
 

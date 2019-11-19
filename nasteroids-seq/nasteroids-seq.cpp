@@ -3,6 +3,7 @@
 #include <random>
 #include <iomanip>
 #include <fstream>
+#include <chrono>
 using namespace std;
 
 #define tiempo 0.1
@@ -119,6 +120,9 @@ int main(int argc, char *argv[]){
     // Escribimos las posiciones iniciales en un fichero
     escribirInit(num_asteroides, num_planetas, num_iteraciones, semilla, planetas, asteroides );
     
+    //Reloj
+    auto start=chrono::high_resolution_clock::now();
+
     //Para cada iteracion
     for (int i = 0; i< num_iteraciones; ++i){
         //Para cada asteroide calculamos la atraccion con el resto de elementos
@@ -188,13 +192,13 @@ int main(int argc, char *argv[]){
         for (int j = 0; j< num_asteroides; ++j) {            
             //Obtenemos el sumatorio de las fuerzas
             float sum_fuerzax = 0, sum_fuerzay = 0;
-            for (auto fuerza : asteroides[i].fuerzas){
+            for (auto fuerza : asteroides[j].fuerzas){
                 sum_fuerzax += fuerza.x;
                 sum_fuerzay += fuerza.y; 
             }
             //Calculamos la aceleracion
-            float aceleracionx = 1/asteroides[i].masa * sum_fuerzax;
-            float aceleraciony = 1/asteroides[i].masa * sum_fuerzay;
+            float aceleracionx = 1/asteroides[j].masa * sum_fuerzax;
+            float aceleraciony = 1/asteroides[j].masa * sum_fuerzay;
             //Calculamos la velocidad
             asteroides[j].vx += aceleracionx * tiempo;
             asteroides[j].vy += aceleraciony * tiempo;
@@ -206,8 +210,8 @@ int main(int argc, char *argv[]){
 
         //Modificamos la posicion
         for(int j=0; j<num_asteroides; j++){
-            asteroides[j].posx += asteroides[i].vx * tiempo; 
-            asteroides[j].posy += asteroides[i].vy * tiempo;
+            asteroides[j].posx += asteroides[j].vx * tiempo; 
+            asteroides[j].posy += asteroides[j].vy * tiempo;
 
             // Efecto rebote con los muros
             if (asteroides[j].posx <= 0){
@@ -247,6 +251,11 @@ int main(int argc, char *argv[]){
        
     }
 
+    auto end=chrono::high_resolution_clock::now();
+
+    chrono::duration<double> elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);
+
+    cout << elapsed.count() <<endl;
    
     //Escribimos el resultado final
     ofstream out_file("output.txt");
