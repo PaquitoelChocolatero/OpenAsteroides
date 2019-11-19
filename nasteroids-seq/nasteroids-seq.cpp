@@ -128,7 +128,7 @@ int main(int argc, char *argv[]){
         //Para cada asteroide calculamos la atraccion con el resto de elementos
         for (int j = 0; j<num_asteroides; ++j){
             //Declaramos un vector donde alamacenar las fuerzas
-            vector<Fuerza> sumatorio_fuerzas;
+            //vector<Fuerza> sumatorio_fuerzas;
             // Para los elementos de tipo asteroide cuya atraccion no ha sido calculada aun (k = j+1)
             for (int k = j+1; k<num_asteroides; ++k ){
                 

@@ -18,7 +18,7 @@ for t in range(6):
             #Calculamos el tiempo 10 veces
             for k in range(11):
                 #Sacamos con el comando en bash el float resultante en cada bucle
-                resultado+=float(os.popen('./nasteroids-seq %i %i %i 1999 | cut -d: -f 2 | tr -d " "' % (cuerpos[i], iteraciones[j], cuerpos[i])).read())
+                resultado+=float(os.popen('./nasteroids-par %i %i %i 1999 | cut -d: -f 2 | tr -d " "' % (cuerpos[i], iteraciones[j], cuerpos[i])).read())
             #Hacemos la media
             resultado=resultado/10
             #Imprimimos el tiempo total de cada configuración
