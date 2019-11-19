@@ -29,7 +29,7 @@
     \noindent\rule{12cm}{0.4pt}
     \\
     %Día
-    \large Fecha
+    \large 22 de noviembre de 2019
     \end{center}
     %Autor/es
     \vspace{20mm}
@@ -49,15 +49,108 @@
     %Primer apartado
     \section{Secuencial}
         \subsection{Introducción}
+        \noindent En este apartado de la práctica se nos pide que realicemos la simulación del movimiento, atracción y rebote de los asteroides de forma secuencial. Esto quiere decir que cada cálculo debe realizarse uno detrás de otro. \\ \\
+        La forma en la que hemos hecho esto es mediante el uso de bucles \textit{for} que recorren de forma lineal un vector de asteroides y planetas, haciendo para cada uno sus cálculos de fuerzas respecto al resto y finalmente realizando su movimiento.\\ \\
+        Adicionalmente, tal y como pide el enunciado, al iniciar la ejecución se escriben los parámetros de inicio en un archivo \textit{init\_conf.txt} y una vez termina la ejecución escribe los parámetros finales de exclusivamente los asteroides (ya que los planetas no han variado) en un archivo \textit{output.txt}
         \noindent 
         \subsection{Pruebas de rendimiento}
-        \noindent
+        \subsubsection{Prámetros de la máquina empleada}
+            \begin{enumerate}
+                \item Procesador $\rightarrow$ 
+                \item Cores $\rightarrow$ 
+                \item RAM $\rightarrow$ 
+                \item SO $\rightarrow$ 
+                \item Versión gcc $\rightarrow$ 
+            \end{enumerate}
+        \subsubsection{Pruebas}
+        %*Ejecutar cada prueba 10 veces y hacer media
+        
+        %Hacer gráfico para tiempos totales y tiempo por iteración
+        
+        %hacer pruebas con:
+        % 250 50 250 1999
+        % 500 50 500 1999
+        % 1000 50 1000 1999
+        % 250 100 250 1999
+        % 500 100 500 1999
+        % 1000 100 1000 1999
+        % 250 200 250 1999
+        % 500 200 500 1999
+        % 1000 200 1000 1999
+        \subsubsection{Análisis de resultados}
     \newpage
     \section{Paralelo}
         \subsection{Introducción}
         \noindent
         \subsection{Pruebas de rendimiento}
-        \noindent
+        \subsubsection{Prámetros de la máquina empleada}
+            \begin{enumerate}
+                \item Procesador $\rightarrow$ 
+                \item Cores $\rightarrow$ 
+                \item RAM $\rightarrow$ 
+                \item SO $\rightarrow$ 
+                \item Versión gcc $\rightarrow$ 
+            \end{enumerate}
+        \subsubsection{Pruebas}
+        %*Ejecutar cada prueba 10 veces y hacer media
+        
+        %Hacer gráfico para tiempos totales,  tiempo por iteración y speedup frente al secuencial
+        
+        %hacer pruebas con:
+        % 250 50 250 1999 hilos=1
+        % 500 50 500 1999 hilos=1
+        % 1000 50 1000 1999 hilos=1
+        % 250 100 250 1999 hilos=1
+        % 500 100 500 1999 hilos=1
+        % 1000 100 1000 1999 hilos=1
+        % 250 200 250 1999 hilos=1
+        % 500 200 500 1999 hilos=1
+        % 1000 200 1000 1999 hilos=1
+        % 250 50 250 1999 hilos=2
+        % 500 50 500 1999 hilos=2
+        % 1000 50 1000 1999 hilos=2
+        % 250 100 250 1999 hilos=2
+        % 500 100 500 1999 hilos=2
+        % 1000 100 1000 1999 hilos=2
+        % 250 200 250 1999 hilos=2
+        % 500 200 500 1999 hilos=2
+        % 1000 200 1000 1999 hilos=2
+        % 250 50 250 1999 hilos=4
+        % 500 50 500 1999 hilos=4
+        % 1000 50 1000 1999 hilos=4
+        % 250 100 250 1999 hilos=4
+        % 500 100 500 1999 hilos=4
+        % 1000 100 1000 1999 hilos=4
+        % 250 200 250 1999 hilos=4
+        % 500 200 500 1999 hilos=4
+        % 1000 200 1000 1999 hilos=4
+        % 250 50 250 1999 hilos=8
+        % 500 50 500 1999 hilos=8
+        % 1000 50 1000 1999 hilos=8
+        % 250 100 250 1999 hilos=8
+        % 500 100 500 1999 hilos=8
+        % 1000 100 1000 1999 hilos=8
+        % 250 200 250 1999 hilos=8
+        % 500 200 500 1999 hilos=8
+        % 1000 200 1000 1999 hilos=8
+        % 250 50 250 1999 hilos=10
+        % 500 50 500 1999 hilos=10
+        % 1000 50 1000 1999 hilos=10
+        % 250 100 250 1999 hilos=10
+        % 500 100 500 1999 hilos=10
+        % 1000 100 1000 1999 hilos=10
+        % 250 200 250 1999 hilos=10
+        % 500 200 500 1999 hilos=10
+        % 1000 200 1000 1999 hilos=10
+        \subsubsection{Análisis de resultados}
+        \subsubsection{Impacto de la planificación}
+        %Hacer un análisis con las diferencias de:
+        %static hilos=4
+        %dynamic hilos=4
+        %guided hilos=4
+        %static hilos=8
+        %dynamic hilos=8
+        %guided hilos=8
     \newpage
     \section{Conclusión}
     \noindent
