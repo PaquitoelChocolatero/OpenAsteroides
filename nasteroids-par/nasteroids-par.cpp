@@ -1,292 +1,295 @@
 #include <iostream>
-#include <fstream>
-#include <string>
+#include <cmath>
 #include <random>
-#include <chrono>
-#include <omp.h>
 #include <iomanip>
+#include <fstream>
+#include <omp.h>
 
 using namespace std;
 
-//Constantes dadas en el enunciado
-constexpr double tiempo = 0.1;
-constexpr double dmin = 5.0;
-constexpr int width = 200;
-constexpr int height = 200;
-constexpr int m = 1000;
-constexpr int sdm = 50;
-constexpr double G=6.67e-5;
-
-//La clase Cuerpo engloba a planetas y asteroides
-class Cuerpo{
-    public:
-        double posx, posy, masa, vx, vy;
-        string type;
-        void set(double x ,double y, double m) { posx = x; posy = y; masa = m; vx = 0; vy=0;};
-};
-
-class Planeta : public Cuerpo {
-    string type="planeta";  
-
-};
-
-class Asteroide : public Cuerpo {
-    string type="asteroide";
-    public:
-        void Mover();
-};
+#define tiempo 0.1
+#define dmin 5.0
+#define width 200
+#define height 200
+#define m 1000
+#define sdm 50
+#define G 6.674e-5
+#define num_threads  4
 
 typedef struct {
-    int num_asteroides;
-    int num_iteraciones;
-    int num_planetas; 
-    int semilla;
-}Datos;
+    float x;
+    float y;
+}Fuerza;
 
-Datos parseArgs(int argc, char *argv[]){
-     //Si el número de argumentos no es el correcto se imprime el uso correcto de la aplicación 
-    if (argc<5){
-        throw int(1);
-    }
-    Datos datos;
-    try{
-        datos.num_asteroides = stoi(argv[1]);
-        datos.num_iteraciones = stoi(argv[2]);    
-        datos.num_planetas = stoi(argv[3]);     
-        datos.semilla = stoi(argv[4]);
-    }catch(invalid_argument &e){
-        throw int(1);
-    }
-    return datos;   
-}
+typedef struct {
+    float posx;
+    float posy;
+    float masa;
+    vector<Fuerza> fuerzas;
+    float vx;
+    float vy;
+}Asteroide;
 
-
-//Función que mueve al asteroide cambiando su posición, velocidad y tiempo transcurrido
-void Asteroide::Mover(){
-    //Si llegamos al borde colocamos el asteroide 5 posiciones alejado de él e invertimos su velocidad
-    if(posx<=0){
-        posx = dmin;
-        vx *= -1;
-    }
-    else if(posx>=width){
-        posx = width-dmin;
-        vx *= -1;
-    }
-    if(posy<=0){
-        posy = dmin;
-        vy *= -1;
-    }
-    else if(posy>=height){
-        posy = height-dmin;
-        vy *= -1;
-    }
-    //Movemos el asteroide
-    posx = posx + vx*tiempo;
-    posy = posy + vy*tiempo;
-}
+typedef struct {
+    float posx;
+    float posy;
+    float masa;
+}Planeta;
 
 
 
-void init(Datos d, Asteroide *asteroides, Planeta *planetas){
-    unsigned long int seed = d.semilla;
+void calculoPosicionInicial(long unsigned int seed, int num_asteroides, int num_planetas, Asteroide *asteroides, Planeta *planetas){
     default_random_engine re{seed};
     uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
     uniform_real_distribution<double> ydist{0.0, std::nextafter(height,std::numeric_limits<double>::max())};
     normal_distribution<double> mdist{m, sdm};
 
-    for (int i = 0; i<d.num_asteroides; i++){
-        double posx = xdist(re);
-        double posy = ydist(re);
-        double masa = mdist(re);        
-        asteroides[i].set(posx, posy, masa);
+    for (int i = 0; i<num_asteroides; i++){
+        asteroides[i].posx = xdist(re);
+        asteroides[i].posy = ydist(re);
+        asteroides[i].masa = mdist(re);
+        asteroides[i].vx = 0;
+        asteroides[i].vy = 0;        
     }
-    double posx, posy, masa;
-    for (int i=0; i<d.num_planetas; i++){
+    float masa;
+    for (int i=0; i<num_planetas; i++){
+       
         int lateral = i%4;
         switch (lateral){
             case 0:
-                posy = ydist(re);
-                masa = mdist(re);
-                if(masa<0) masa*=-1;
-                planetas[i].set(0, posy, masa);
+                planetas[i].posx = 0;
+                planetas[i].posy = ydist(re);
+                masa = abs(mdist(re));
+                planetas[i].masa = 10*masa;
                 break;
             case 1:
-                posx = xdist(re);
-                masa = mdist(re);
-                if(masa<0) masa*=-1;
-                planetas[i].set(posx, 0, masa);
+                planetas[i].posx = xdist(re);
+                planetas[i].posy = 0;
+                masa = abs(mdist(re));
+                planetas[i].masa = 10*masa;
                 break;
             case 2:
-                posy = ydist(re);
-                masa = mdist(re);
-                if(masa<0) masa*=-1;
-                planetas[i].set(width, posy, masa);
+                planetas[i].posx = width;
+                planetas[i].posy = ydist(re);
+                masa = abs(mdist(re));
+                planetas[i].masa = 10*masa;
                 break;
             case 3:
-                posx = xdist(re);
-                masa = mdist(re);
-                if(masa<0) masa*=-1;
-                planetas[i].set(posx, height, masa);
+                planetas[i].posx = xdist(re);
+                planetas[i].posy = height;
+                masa = abs(mdist(re));
+                planetas[i].masa = 10*masa;
                 break;
         }      
     }
 }
 
-// Funcion para escribir en un fichero los valores iniciales
-void writeInit(Datos d, Asteroide asteroides[], Planeta planetas[]){
+void escribirInit(int num_asteroides, int num_planetas, int num_iteraciones, int semilla, Planeta *planetas, Asteroide *asteroides ){
     ofstream init_file ("init_conf.txt");
-    init_file << d.num_asteroides << " " << d.num_iteraciones << " " << d.num_planetas << " " << d.semilla << endl;
-    
-    #pragma omp parallel for
-    for (int i=0; i<d.num_asteroides; ++i){
+    init_file << num_asteroides << " " << num_iteraciones << " " << num_planetas << "  " << semilla << endl;
+     
+    for (int i=0; i<num_asteroides; ++i){
         init_file << fixed << setprecision(3) << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].masa << endl;
     }
-
-    #pragma omp parallel for
-    for (int i=0; i<d.num_planetas; ++i){
+    for (int i=0; i<num_planetas; ++i){
        init_file << fixed << setprecision(3) << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
     }
     init_file.close();
+
 }
 
-
-//Se calcula la atraccion entre dos cuerpos y se modifican sus velocidades usando esa fuerza.
-//      NO SE MODIFICAN LAS POSICIONES: esto es para luego modificar solo las de los asteroides.
-//La idea es ejecutar esto para cada par de cuerpos O(n²-n) una vez calculado el tiempo
-double* atraccion(Cuerpo &c1, Cuerpo &c2){
-    double fuerza[2];
-    double distancia=sqrt( pow( (c1.posx-c2.posx),2)+pow((c1.posx-c2.posx), 2) );
-    //Calculos del enunciado
-    if(distancia>dmin){
-        double pendiente=(c1.posy-c2.posy)/(c1.posx - c2.posx);
-        if(pendiente>1){
-            pendiente=1;
-        }else if(pendiente<-1){
-            pendiente=-1;
-        }
-
-        double alpha = atan(pendiente);
-        //double fuerzax = (G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha) ;
-        //double fuerzay = (G*c1.masa*c2.masa)/(distancia*distancia)*sen(alpha) ;
-
-        //fuerza[0]=fuerzax, fuerza[1]=fuerzay
-             
-        fuerza[0]=(G*c1.masa*c2.masa)/(distancia*distancia)*cos(alpha);
-        fuerza[1]=(G*c1.masa*c2.masa)/(distancia*distancia)*sin(alpha);
-        
-
-        return fuerza;
-        //V = V0 + a*t
-        /*
-        c1.vx += (fuerza[0]/c1.masa)*tiempo;
-        c1.vy += (fuerza[1]/c1.masa)*tiempo;
-        c2.vx -= (fuerza[0]/c2.masa)*tiempo;
-        c2.vy -= (fuerza[1]/c2.masa)*tiempo;       
-        */   
-    }
-    //Si la distancia es menor que la mínima intercambiamos los valores de velocidad
-    else{
-        if(c1.type=="asteroide" && c2.type=="asteroide"){
-
-        double temp = c1.vx;
-        c1.vx = c2.vx;
-        c2.vx = temp;
-        temp = c1.vy;
-        c1.vy = c2.vy;
-        c2.vy = temp;
-        
-        }
-        return fuerza;
-
-    }
-    
-}
 
 int main(int argc, char *argv[]){
+    
+    omp_set_num_threads(4);
 
-    omp_set_num_threads(5);
-      
-    Datos datos;
-    try{
-        datos = parseArgs(argc, argv);
-    }catch(int i){
-        if (i==1){
-            cout << "nasteroids-par: Wrong arguments."<< endl <<"Correct use:"<< endl <<"./nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
-            return -1;
-        }
+    // Leer argumentos 
+
+    int num_asteroides = 0, num_planetas = 0, num_iteraciones = 0, semilla = 0;
+    if (argc<5){
+        cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"./nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
+        return -1;
+    }else{
+        num_asteroides = stoi(argv[1]);
+        num_iteraciones = stoi(argv[2]);    
+        num_planetas = stoi(argv[3]);     
+        semilla = stoi(argv[4]);
     }
+
+    // Array de struct planetas
+    Planeta *planetas = new Planeta[num_planetas];
+    //Array de struct asteroides
+    Asteroide *asteroides = new Asteroide[num_asteroides];
+
+    // Asignacion de las posiciones iniciales
+    calculoPosicionInicial(semilla, num_asteroides, num_planetas, asteroides, planetas);
+    // Escribimos las posiciones iniciales en un fichero
+    escribirInit(num_asteroides, num_planetas, num_iteraciones, semilla, planetas, asteroides );
     
-    double [datos.num_asteroides][datos.num_asteroides+datos.num_planetas];
-
-   //Declaramos los cuerpos
-    Planeta *planetas = new Planeta[datos.num_planetas];
-    Asteroide *asteroides = new Asteroide[datos.num_asteroides];
-
-    init(datos, asteroides, planetas);
-       
-   
-
-    writeInit(datos, asteroides, planetas);   
-    
-
-    //double fuerzas[datos.num_asteroides][datos.num_asteroides+datos.num_planetas][2];
-
-    auto start=chrono::high_resolution_clock::now();
-
-    //Bucle principal de la simulación
-    for(int it = 0;it<datos.num_iteraciones;it++){
-
-        //Calculo de la fuerza de atracción entre cada cuerpo -> O(n_asteroides²-n_asteroides+n_asteroides*n_planetas)
+    //Para cada iteracion
+    for (int i = 0; i< num_iteraciones; ++i){
         
-        //Cada hilo recorre una porcion del array de cuerpos
+        //------------------------------Calculo de fuerzas--------------------------------
+        // Habra dos secciones una para la atraccion asteroide-asteroide y planeta-planeta
+        #pragma omp parallel sections
+        {   
+            // Seccion asteroide-asteroide
+            #pragma omp section
+            {   
+                //Para cada asteroide calculamos la atraccion con el resto de elementos
+                for (int j = 0; j<num_asteroides; ++j){
+                    //Declaramos un vector donde alamacenar las fuerzas
+                    //vector<Fuerza> sumatorio_fuerzas;
+                    // Para los elementos de tipo asteroide cuya atraccion no ha sido calculada aun (k = j+1)
+                    for (int k = j+1; k<num_asteroides; ++k ){
 
-        #pragma omp parallel for ordered
-
-            //Recorremos sólo los asteroides (los planetas son fijos)
-            for(int i=0; i<datos.num_asteroides; i++){
-                //Se sienten atraídos por todos los cuerpos
-
-                //Cada hilo calcula la atraccion de un rango de cuerpos distintos
-                #pragma omp parallel for 
-                
-                    for(int j=i+1; j<(datos.num_asteroides + datos.num_planetas)-1; j++){
-                        //Si i es mayor o igual que el numero de asteroides es que ambos son planetas y no hace falta calcular la fuerza entre planetas
-                        if (i<datos.num_asteroides){
-                            //Si j es un asteroide
-                            if(j<datos.num_asteroides){
-                                atraccion(asteroides[i], asteroides[j]);
+                        // Calculamos la distancia en modulo
+                        float distancia=sqrt( pow( (asteroides[j].posx-asteroides[k].posx),2)+pow((asteroides[j].posx-asteroides[k].posx), 2) );
+                        // Si la distancia es mayor que la distancia de rebote
+                        if (distancia > dmin){
+                            // Calculamos la pendiente
+                            float pendiente=(asteroides[j].posy-asteroides[k].posy)/(asteroides[j].posx - asteroides[k].posx);
+                            // Truncamos si es mayor que 1 o menor que -1
+                            if(pendiente>1){
+                                pendiente=1;
+                            }else if(pendiente<-1){
+                                pendiente=-1;
                             }
-                            //Si es un planeta
-                            else{
-                                /*fuerzas[i][j] =*/ atraccion(asteroides[i], planetas[j-datos.num_asteroides]);
-                            }
+                            //Calculamos el angulo
+                            float alpha = atan(pendiente);
+
+                            //Calculamos la fuerza entre ambos
+                            float fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha);
+                            float fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha);
+
+                            // La fuerza tiene el mismo valor pero sentido contrario para cada uno
+                            Fuerza fuerzaj = {fuerzax, fuerzay};
+                            Fuerza fuerzak = {fuerzax*-1, fuerzay*-1};
+
+                            // La añadimos al vector de fuerza de cada uno    
+                            #pragma omp critical
+                            asteroides[j].fuerzas.push_back(fuerzaj);
+                            
+                            #pragma omp critical
+                            asteroides[k].fuerzas.push_back(fuerzak);
+                            
                         }
                     }
-                
-                //asteroides[i].vx= (fuerza[0]/asteroides[i].masa)*tiempo;
-                //asteroides[i].vy= (fuerza[1]/asteroides[i].masa)*tiempo;
+                }
+            }//Fin seccion atraccion asteroide-asteroide
 
-                //Movemos el asteroide de turno 
-               
-                asteroides[i].Mover();
+            #pragma omp section
+            {   
+                //Seccion asteroide - planeta
+                for (int j = 0; j<num_asteroides; ++j){
+                    //vector<Fuerza> sumatorio_fuerzas;
+                    //Fuerza del planeta k sobre el asteroide j
+                    for (int k = 0; k < num_planetas; ++k){
+                        // Calculamos la distancia en modulo
+                        float distancia=sqrt( pow( (asteroides[j].posx-planetas[k].posx),2)+pow((asteroides[j].posx-planetas[k].posx), 2) );
+                        // Si la distancia es mayor que la distancia de rebote
+                        if (distancia > dmin){
+                            // Calculamos la pendiente
+                            float pendiente=(asteroides[j].posy-planetas[k].posy)/(asteroides[j].posx - planetas[k].posx);
+                            // Truncamos si es mayor que 1 o menor que -1
+                            if(pendiente>1){
+                                pendiente=1;
+                            }else if(pendiente<-1){
+                                pendiente=-1;
+                            }
+                            //Calculamos el angulo
+                            float alpha = atan(pendiente);
+
+                            //Calculamos la fuerza entre ambos
+                            float fuerzax = (G*asteroides[j].masa*planetas[k].masa)/(distancia*distancia)*cos(alpha);
+                            float fuerzay = (G*asteroides[j].masa*planetas[k].masa)/(distancia*distancia)*sin(alpha);
+                            
+                            // La fuerza tiene el mismo valor pero sentido contrario para cada uno
+                            Fuerza fuerzaj = {fuerzax, fuerzay};
+                            
+                            //Seccion critica
+                            #pragma omp critical
+                            asteroides[j].fuerzas.push_back(fuerzaj);
+                        }
+                    }
+                }
+            }//Fin planeta - asteroide
+        }//Fin de secciones paralelas asteroide-asteroide y asteroide-planeta
+    
+        // Para cada asteroide calcularemos su fuerza, su aceleracion y velocidad
+        for (int j = 0; j< num_asteroides; ++j) {            
+            //Obtenemos el sumatorio de las fuerzas
+            float sum_fuerzax = 0, sum_fuerzay = 0;
+            for (auto fuerza : asteroides[i].fuerzas){
+                sum_fuerzax += fuerza.x;
+                sum_fuerzay += fuerza.y; 
             }
+            //Calculamos la aceleracion
+            float aceleracionx = 1/asteroides[i].masa * sum_fuerzax;
+            float aceleraciony = 1/asteroides[i].masa * sum_fuerzay;
+            //Calculamos la velocidad
+            asteroides[j].vx += aceleracionx * tiempo;
+            asteroides[j].vy += aceleraciony * tiempo;
+            //Modificamos la posicion
+           
+            //Dejamos el vector vacio para la siguiente iteracion
+            asteroides[j].fuerzas.clear(); 
+        }
 
+        //Modificamos la posicion
+        for(int j=0; j<num_asteroides; j++){
+            asteroides[j].posx += asteroides[i].vx * tiempo; 
+            asteroides[j].posy += asteroides[i].vy * tiempo;
+
+            // Efecto rebote con los muros
+            if (asteroides[j].posx <= 0){
+                asteroides[j].posx = dmin;
+                asteroides[j].vx *= -1;
+            }else if (asteroides[j].posx >= width){
+                asteroides[j].posx = width - dmin;
+                asteroides[j].vx *= -1;
+            }else if (asteroides[j].posy <= 0){
+                asteroides[j].posy = dmin;
+                asteroides[j].vy *= -1;
+            }else if (asteroides[j].posy >= height){
+                asteroides[j].posy = height - dmin;
+                asteroides[j].vy *= -1;
+            }
+        }
         
+        //Rebotes entre asteroides 
+        for (int j = 0; j< num_asteroides; ++j) {
+            for (int k = j+1; k < num_asteroides; ++k){
+                //Calculamos la distancia en modulo
+                float distancia=sqrt( pow( (asteroides[j].posx-asteroides[k].posx),2)+pow((asteroides[j].posx-asteroides[k].posx), 2) );
+
+                if (distancia >= dmin){
+                    float temp = asteroides[j].vx;
+                    asteroides[j].vx = asteroides[k].vx;
+                    asteroides[k].vx = temp;
+                    temp = asteroides[j].vy;
+                    asteroides[j].vy = asteroides[k].vy;
+                    asteroides[k].vy = temp;
+
+                    //Tras rebotar se calcula el siguiente asteroide
+                    break;
+                }
+            }
+        }
+                
+
+    
+    
+
     }
 
-    auto end=chrono::high_resolution_clock::now();
-
+   
     //Escribimos el resultado final
-    ofstream out_file ("output.txt");
-     
-    for (int i=0; i<datos.num_asteroides; ++i){
+    ofstream out_file("output.txt");
+
+    for (int i=0; i<num_asteroides; ++i){
         out_file << fixed << setprecision(3) << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].vx << " " << asteroides[i].vy << " "  << asteroides[i].masa << endl;
     }
     out_file.close();
 
-    chrono::duration<double> elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);
-
-    cout<< "Time elapsed: " <<elapsed.count()<<endl;
-
-    return 0;
 }
