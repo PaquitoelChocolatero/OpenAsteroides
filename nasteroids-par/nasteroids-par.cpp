@@ -37,8 +37,6 @@ typedef struct {
     float masa;
 }Planeta;
 
-
-
 void calculoPosicionInicial(long unsigned int seed, int num_asteroides, int num_planetas, Asteroide *asteroides, Planeta *planetas){
     default_random_engine re{seed};
     uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
@@ -96,16 +94,13 @@ void escribirInit(int num_asteroides, int num_planetas, int num_iteraciones, int
        init_file << fixed << setprecision(3) << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
     }
     init_file.close();
-
 }
-
 
 int main(int argc, char *argv[]){
     
     omp_set_num_threads(num_threads);
 
     // Leer argumentos 
-
     int num_asteroides = 0, num_planetas = 0, num_iteraciones = 0, semilla = 0;
     if (argc<5){
         cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"./nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
@@ -139,7 +134,7 @@ int main(int argc, char *argv[]){
                 #pragma omp section
                 {
                     // Para los elementos de tipo asteroide cuya atraccion no ha sido calculada aun (k = j+1)
-                    float fuerzax=0, fuerzay=0;
+                    float fuerzax=0, fuerzay=0, f=0;
                     #pragma omp parallel for
                     for (int k = 0; k<num_asteroides; ++k ){
                         if(k==j){
@@ -164,15 +159,14 @@ int main(int argc, char *argv[]){
                             if (f>100){
                                 f=100;
                             }
-
                             if(k>j){
                                 fuerzax = f * cos(alpha);
                                 fuerzay = f * sin(alpha);
                             }
                             else{
                                 //En otro caso significa que k es menor que j y la fuerza sobre j tendra sentido negativo
-                                fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha)*-1;
-                                fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha)*-1;
+                                fuerzax = f*cos(alpha)*-1;
+                                fuerzay = f*sin(alpha)*-1;
                             }
                             //En cualquier caso la fuerza sobre k sera calculada mas adelante    
                             
@@ -186,7 +180,7 @@ int main(int argc, char *argv[]){
                 }
                 #pragma omp section
                 {
-                    float fuerzax, fuerzay;
+                    float fuerzax, fuerzay, f=0;
                     //Fuerza del planeta k sobre el asteroide j
                     #pragma omp parallel for
                     for (int k = 0; k < num_planetas; ++k){
@@ -205,9 +199,14 @@ int main(int argc, char *argv[]){
                             //Calculamos el angulo
                             float alpha = atan(pendiente);
 
+                            f = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia);
+                            if (f>100){
+                                f=100;
+                            }
+
                             //Calculamos la fuerza entre ambos
-                            fuerzax = (G*asteroides[j].masa*planetas[k].masa)/(distancia*distancia)*cos(alpha);
-                            fuerzay = (G*asteroides[j].masa*planetas[k].masa)/(distancia*distancia)*sin(alpha);
+                            fuerzax = f*cos(alpha);
+                            fuerzay = f*sin(alpha);
                             
                             // La fuerza tiene el mismo valor pero sentido contrario para cada uno
                             Fuerza fuerzaj = {fuerzax, fuerzay};
@@ -217,10 +216,10 @@ int main(int argc, char *argv[]){
                         }
                     }
                 }
-
             }           
         }
 
+        //#pragma omp parallel for
         // Calculo de la fuerza, la aceleracion, y la velocidad        
         for (int j = 0; j< num_asteroides; ++j) {            
             //Obtenemos el sumatorio de las fuerzas
@@ -241,6 +240,7 @@ int main(int argc, char *argv[]){
             asteroides[j].fuerzas.clear(); 
         }
 
+        //#pragma omp parallel for
         //Modificamos la posicion
         for(int j=0; j<num_asteroides; j++){
             asteroides[j].posx += asteroides[j].vx * tiempo; 
@@ -296,5 +296,4 @@ int main(int argc, char *argv[]){
         out_file << fixed << setprecision(3) << asteroides[j].posx << " " << asteroides[j].posy << " " << asteroides[j].vx << " " << asteroides[j].vy << " "  << asteroides[j].masa << endl;
     }
     out_file.close();
-
 }
