@@ -15,7 +15,7 @@ using namespace std;
 #define m 1000
 #define sdm 50
 #define G 6.674e-5
-#define num_threads 8
+#define num_threads 4
 
 typedef struct {
     float x;
@@ -160,14 +160,28 @@ int main(int argc, char *argv[]){
                             //Calculamos el angulo
                             float alpha = atan(pendiente);
 
-                            f = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia);
-                            if (f>100){
-                                f=100;
-                            }
+                            //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                            /*
+                            //Calculamos la fuerza entre ambos
+                            float fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha);
+                            float fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha);
+
+                        
+                            // La fuerza tiene el mismo valor pero sentido contrario para cada uno
+                            Fuerza fuerzaj = {fuerzax, fuerzay};
+                            Fuerza fuerzak = {fuerzax*-1, fuerzay*-1};
+
+                            // La añadimos al vector de fuerza de cada uno
+                            #pragma omp critical
+                            asteroides[j].fuerzas.push_back(fuerzaj);
+                            #pragma omp critical    
+                            asteroides[k].fuerzas.push_back(fuerzak);
+                            */
+                            //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
                             if(k>j){
-                                fuerzax = f * cos(alpha);
-                                fuerzay = f * sin(alpha);
+                                fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha);
+                                fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha);
                             }
                             else{
                                 //En otro caso significa que k es menor que j y la fuerza sobre j tendra sentido negativo
@@ -222,6 +236,7 @@ int main(int argc, char *argv[]){
         }
 
         // Calculo de la fuerza, la aceleracion, y la velocidad        
+        #pragma omp parallel for
         for (int j = 0; j< num_asteroides; ++j) {            
             //Obtenemos el sumatorio de las fuerzas
             float sum_fuerzax = 0, sum_fuerzay = 0;
@@ -240,6 +255,7 @@ int main(int argc, char *argv[]){
             //Dejamos el vector vacio para la siguiente iteracion
             asteroides[j].fuerzas.clear(); 
         }
+
 
         //Modificamos la posicion
         for(int j=0; j<num_asteroides; j++){
