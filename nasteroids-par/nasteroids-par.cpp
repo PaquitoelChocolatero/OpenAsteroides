@@ -15,7 +15,7 @@ using namespace std;
 #define m 1000
 #define sdm 50
 #define G 6.674e-5
-#define num_threads 3
+#define num_threads 8
 
 typedef struct {
     float x;
