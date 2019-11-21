@@ -15,7 +15,7 @@ using namespace std;
 #define m 1000
 #define sdm 50
 #define G 6.674e-5
-#define num_threads 3
+#define num_threads 4
 
 typedef struct {
     float x;
@@ -236,6 +236,7 @@ int main(int argc, char *argv[]){
         }
 
         // Calculo de la fuerza, la aceleracion, y la velocidad        
+        #pragma omp parallel for
         for (int j = 0; j< num_asteroides; ++j) {            
             //Obtenemos el sumatorio de las fuerzas
             float sum_fuerzax = 0, sum_fuerzay = 0;
@@ -254,6 +255,7 @@ int main(int argc, char *argv[]){
             //Dejamos el vector vacio para la siguiente iteracion
             asteroides[j].fuerzas.clear(); 
         }
+
 
         //Modificamos la posicion
         for(int j=0; j<num_asteroides; j++){
