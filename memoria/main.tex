@@ -56,31 +56,62 @@
         \subsection{Pruebas de rendimiento}
         \subsubsection{Prámetros de la máquina empleada}
             \begin{enumerate}
-                \item Procesador $\rightarrow$ 
-                \item Cores $\rightarrow$ 
-                \item RAM $\rightarrow$ 
-                \item SO $\rightarrow$ 
-                \item Versión gcc $\rightarrow$ 
+                \item Procesador $\rightarrow$ AMD Ryzen 5 1600 Six-Core Processor
+                \item Núcleos $\rightarrow$ 12
+                \item Hilos $\rightarrow$ 24
+                \item Memoria Principal $\rightarrow$ 16032 MiB
+                \item Memoria Caché:
+                    \begin{enumerate}
+                        \item L1d $\rightarrow$ 192 KiB
+                        \item L1i $\rightarrow$ 384 KiB
+                        \item L2 $\rightarrow$ 3 MiB
+                        \item L3 $\rightarrow$ 16 MiB
+                    \end{enumerate}
+                \item Sistema Operativo $\rightarrow$ ArchLabs Linux x86\_64
+                \item Versión gcc $\rightarrow$ 9.1.0
             \end{enumerate}
+        \newpage
         \subsubsection{Pruebas}
+            Tiempo medio por ejecución
             \begin{figure}[hbt!]
                 \centering
                 \includegraphics[width=\linewidth]{images/chart.png}
             \end{figure}
-        %*Ejecutar cada prueba 10 veces y hacer media
         
-        %Hacer gráfico para tiempos totales y tiempo por iteración
+            \begin{center}
+                \noindent Asteroides Iteraciones Planetas $\rightarrow$ Tiempo \\
+                250 50 250 $\rightarrow$ 0,175325 s \\
+                250 100 250 $\rightarrow$ 0,347015 s \\
+                250 200 250 $\rightarrow$ 0,679755 s \\
+                500 50 500 $\rightarrow$ 0,684033 s \\
+                500 100 500 $\rightarrow$ 1,354324 s \\
+                500 200 500 $\rightarrow$ 2,691718 s \\
+                1000 50 1000 $\rightarrow$ 2,726185 s \\
+                1000 100 1000 $\rightarrow$ 5,425178 s \\
+                1000 200 1000 $\rightarrow$ 10,784117 s \\
+            \end{center}
+            
+            \newpage
+            Tiempo medio por iteración
+            \begin{figure}[hbt!]
+                \centering
+                \includegraphics[width=\linewidth]{images/chart2.png}
+            \end{figure}
         
-        %hacer pruebas con:
-        % 250 50 250 -> 0.191154
-        % 250 100 250 -> 0.380274
-        % 250 200 250 -> 0.768534
-        % 500 50 500 -> 0,779952
-        % 500 100 500 -> 1,570003
-        % 500 200 500 -> 3,078390
-        % 1000 50 1000 -> 3,053554
-        % 1000 100 1000 -> 6,099249
-        % 1000 200 1000 -> 12,081000
+            \begin{center}
+                \noindent Asteroides Iteraciones Planetas $\rightarrow$ Tiempo \\
+                250 50 250 $\rightarrow$ 0,003560 s \\
+                250 100 250 $\rightarrow$ 0,003476 s \\
+                250 200 250 $\rightarrow$ 0,003420 s \\
+                500 50 500 $\rightarrow$ 0,013685 s \\
+                500 100 500 $\rightarrow$ 0,013570 s \\
+                500 200 500 $\rightarrow$ 0,013482 s \\
+                1000 50 1000 $\rightarrow$ 0,054549 s \\
+                1000 100 1000 $\rightarrow$ 0,054359 s \\
+                1000 200 1000 $\rightarrow$ 0,053990 s \\
+            \end{center}
+        
+        \newpage
         \subsubsection{Análisis de resultados}
     \newpage
     \section{Paralelo}
@@ -89,11 +120,19 @@
         \subsection{Pruebas de rendimiento}
         \subsubsection{Prámetros de la máquina empleada}
             \begin{enumerate}
-                \item Procesador $\rightarrow$ 
-                \item Cores $\rightarrow$ 
-                \item RAM $\rightarrow$ 
-                \item SO $\rightarrow$ 
-                \item Versión gcc $\rightarrow$ 
+                \item Procesador $\rightarrow$ AMD Ryzen 5 1600 Six-Core Processor
+                \item Núcleos $\rightarrow$ 12
+                \item Hilos $\rightarrow$ 24
+                \item Memoria Principal $\rightarrow$ 16032 MiB
+                \item Memoria Caché:
+                    \begin{enumerate}
+                        \item L1d $\rightarrow$ 192 KiB
+                        \item L1i $\rightarrow$ 384 KiB
+                        \item L2 $\rightarrow$ 3 MiB
+                        \item L3 $\rightarrow$ 16 MiB
+                    \end{enumerate}
+                \item Sistema Operativo $\rightarrow$ ArchLabs Linux x86\_64
+                \item Versión gcc $\rightarrow$ 9.1.0
             \end{enumerate}
         \subsubsection{Pruebas}
         %*Ejecutar cada prueba 10 veces y hacer media
