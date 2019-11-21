@@ -203,13 +203,9 @@ int main(int argc, char *argv[]){
                     //Calculamos el angulo
                     float alpha = atan(pendiente);
 
-                    f = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia);
-                    if (f>100){
-                        f=100;
-                    }
                     //Calculamos la fuerza entre ambos
-                    float fuerzax = f*cos(alpha);
-                    float fuerzay = f*sin(alpha);
+                    float fuerzax = (G*asteroides[j].masa*planetas[k].masa)/(distancia*distancia)*cos(alpha);
+                    float fuerzay = (G*asteroides[j].masa*planetas[k].masa)/(distancia*distancia)*sin(alpha);
                     
                     // La fuerza tiene el mismo valor pero sentido contrario para cada uno
                     Fuerza fuerzaj = {fuerzax, fuerzay};
