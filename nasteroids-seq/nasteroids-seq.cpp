@@ -34,8 +34,6 @@ typedef struct {
     float masa;
 }Planeta;
 
-
-
 void calculoPosicionInicial(long unsigned int seed, int num_asteroides, int num_planetas, Asteroide *asteroides, Planeta *planetas){
     default_random_engine re{seed};
     uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
@@ -96,7 +94,6 @@ void escribirInit(int num_asteroides, int num_planetas, int num_iteraciones, int
 
 }
 
-
 int main(int argc, char *argv[]){
     // Leer argumentos 
     int num_asteroides = 0, num_planetas = 0, num_iteraciones = 0, semilla = 0;
@@ -121,10 +118,15 @@ int main(int argc, char *argv[]){
     escribirInit(num_asteroides, num_planetas, num_iteraciones, semilla, planetas, asteroides );
     
     //Reloj
-    auto start=chrono::high_resolution_clock::now();
+    //auto start=chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsed;
+    double it = 0;
 
     //Para cada iteracion
     for (int i = 0; i< num_iteraciones; ++i){
+
+        auto start=chrono::high_resolution_clock::now();
+
         //Para cada asteroide calculamos la atraccion con el resto de elementos
         for (int j = 0; j<num_asteroides; ++j){
             float fuerzax=0, fuerzay=0;
@@ -149,25 +151,6 @@ int main(int argc, char *argv[]){
                     }
                     //Calculamos el angulo
                     float alpha = atan(pendiente);
-
-                    //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-                    /*
-                    //Calculamos la fuerza entre ambos
-                    float fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha);
-                    float fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha);
-
-                   
-                    // La fuerza tiene el mismo valor pero sentido contrario para cada uno
-                    Fuerza fuerzaj = {fuerzax, fuerzay};
-                    Fuerza fuerzak = {fuerzax*-1, fuerzay*-1};
-
-                    // La añadimos al vector de fuerza de cada uno
-                    #pragma omp critical
-                    asteroides[j].fuerzas.push_back(fuerzaj);
-                    #pragma omp critical    
-                    asteroides[k].fuerzas.push_back(fuerzak);
-                    */
-                    //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
                     if(k>j){
                         fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha);
@@ -273,16 +256,19 @@ int main(int argc, char *argv[]){
                     break;
                 }
             }
-         }         
-
-       
+        }
+        auto end=chrono::high_resolution_clock::now();
+        elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);  
+        it += elapsed.count();                
     }
 
-    auto end=chrono::high_resolution_clock::now();
+    // auto end=chrono::high_resolution_clock::now();
+    // chrono::duration<double> elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);
+    // cout << elapsed.count() <<endl;
 
-    chrono::duration<double> elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);
+    it /= num_iteraciones;
+    cout << it << endl;
 
-    cout << elapsed.count() <<endl;
    
     //Escribimos el resultado final
     ofstream out_file("output.txt");
@@ -293,6 +279,3 @@ int main(int argc, char *argv[]){
     out_file.close();
 
 }
-    
-    
-    
