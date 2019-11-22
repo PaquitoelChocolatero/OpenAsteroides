@@ -15,7 +15,7 @@ using namespace std;
 #define m 1000
 #define sdm 50
 #define G 6.674e-5
-#define num_threads 4
+#define num_threads 16
 
 typedef struct {
     float x;
@@ -102,7 +102,8 @@ void escribirInit(int num_asteroides, int num_planetas, int num_iteraciones, int
 
 int main(int argc, char *argv[]){
     
-    omp_set_num_threads(num_threads);
+    //omp_set_num_threads(8);
+
 
     // Leer argumentos 
 
@@ -134,8 +135,10 @@ int main(int argc, char *argv[]){
         //Para cada asteroide calculamos la atraccion con el resto de elementos
         #pragma omp parallel for
         for (int j = 0; j<num_asteroides; ++j){
+            
             #pragma omp parallel sections
             {
+                
                 #pragma omp section
                 {
                     // Para los elementos de tipo asteroide cuya atraccion no ha sido calculada aun (k = j+1)
@@ -159,25 +162,6 @@ int main(int argc, char *argv[]){
                             }
                             //Calculamos el angulo
                             float alpha = atan(pendiente);
-
-                            //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-                            /*
-                            //Calculamos la fuerza entre ambos
-                            float fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha);
-                            float fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha);
-
-                        
-                            // La fuerza tiene el mismo valor pero sentido contrario para cada uno
-                            Fuerza fuerzaj = {fuerzax, fuerzay};
-                            Fuerza fuerzak = {fuerzax*-1, fuerzay*-1};
-
-                            // La añadimos al vector de fuerza de cada uno
-                            #pragma omp critical
-                            asteroides[j].fuerzas.push_back(fuerzaj);
-                            #pragma omp critical    
-                            asteroides[k].fuerzas.push_back(fuerzak);
-                            */
-                            //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
                             if(k>j){
                                 fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha);
@@ -240,8 +224,11 @@ int main(int argc, char *argv[]){
         for (int j = 0; j< num_asteroides; ++j) {            
             //Obtenemos el sumatorio de las fuerzas
             float sum_fuerzax = 0, sum_fuerzay = 0;
+            //#pragma omp parallel for
             for (auto fuerza : asteroides[j].fuerzas){
+                #pragma omp atomic
                 sum_fuerzax += fuerza.x;
+                #pragma omp atomic
                 sum_fuerzay += fuerza.y; 
             }
             //Calculamos la aceleracion
@@ -256,8 +243,8 @@ int main(int argc, char *argv[]){
             asteroides[j].fuerzas.clear(); 
         }
 
-
         //Modificamos la posicion
+        #pragma omp parallel for
         for(int j=0; j<num_asteroides; j++){
             asteroides[j].posx += asteroides[j].vx * tiempo; 
             asteroides[j].posy += asteroides[j].vy * tiempo;
@@ -303,7 +290,7 @@ int main(int argc, char *argv[]){
 
     chrono::duration<double> elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);
     
-    cout << elapsed.count() << endl;
+    //cout << elapsed.count() << endl;
 
     //Escribimos el resultado final
     ofstream out_file("output.txt");
