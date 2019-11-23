@@ -1,0 +1,1 @@
+g++ nasteroids-par.cpp -o nasteroids-par -std=c++14 -Wall -Wextra -Wno-deprecated -Werror -pedantic -pedantic-errors -O3 -DNDEBUG -fopenmp
