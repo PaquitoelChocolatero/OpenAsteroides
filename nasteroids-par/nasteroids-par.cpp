@@ -37,8 +37,6 @@ typedef struct {
     float masa;
 }Planeta;
 
-
-
 void calculoPosicionInicial(long unsigned int seed, int num_asteroides, int num_planetas, Asteroide *asteroides, Planeta *planetas){
     default_random_engine re{seed};
     uniform_real_distribution<double> xdist{0.0, std::nextafter(width, std::numeric_limits<double>::max())};
@@ -96,17 +94,10 @@ void escribirInit(int num_asteroides, int num_planetas, int num_iteraciones, int
        init_file << fixed << setprecision(3) << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
     }
     init_file.close();
-
 }
 
-
 int main(int argc, char *argv[]){
-    
-    //omp_set_num_threads(8);
-
-
     // Leer argumentos 
-
     int num_asteroides = 0, num_planetas = 0, num_iteraciones = 0, semilla = 0;
     if (argc<5){
         cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"./nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
@@ -128,17 +119,22 @@ int main(int argc, char *argv[]){
     // Escribimos las posiciones iniciales en un fichero
     escribirInit(num_asteroides, num_planetas, num_iteraciones, semilla, planetas, asteroides );
     
+    //Reloj
     auto start=chrono::high_resolution_clock::now();
+    // chrono::duration<double> elapsed;
+    // double it = 0;
     
     //Para cada iteracion
     for (int i = 0; i< num_iteraciones; ++i){        
+ 
+        // auto start=chrono::high_resolution_clock::now();
+        
         //Para cada asteroide calculamos la atraccion con el resto de elementos
         #pragma omp parallel for
         for (int j = 0; j<num_asteroides; ++j){
             
             #pragma omp parallel sections
             {
-                
                 #pragma omp section
                 {
                     // Para los elementos de tipo asteroide cuya atraccion no ha sido calculada aun (k = j+1)
@@ -215,7 +211,6 @@ int main(int argc, char *argv[]){
                         }
                     }
                 }
-
             }           
         }
 
@@ -284,13 +279,17 @@ int main(int argc, char *argv[]){
                 }
             }
         }
+        // auto end=chrono::high_resolution_clock::now();
+        // elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);  
+        // it += elapsed.count();  
     }
 
     auto end=chrono::high_resolution_clock::now();
-
     chrono::duration<double> elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);
-    
-    //cout << elapsed.count() << endl;
+    cout << elapsed.count() <<endl;
+
+    // it /= num_iteraciones;
+    // cout << it << endl;
 
     //Escribimos el resultado final
     ofstream out_file("output.txt");
@@ -299,5 +298,4 @@ int main(int argc, char *argv[]){
         out_file << fixed << setprecision(3) << asteroides[j].posx << " " << asteroides[j].posy << " " << asteroides[j].vx << " " << asteroides[j].vy << " "  << asteroides[j].masa << endl;
     }
     out_file.close();
-
 }

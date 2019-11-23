@@ -268,7 +268,6 @@ int main(int argc, char *argv[]){
 
     it /= num_iteraciones;
     cout << it << endl;
-
    
     //Escribimos el resultado final
     ofstream out_file("output.txt");
@@ -277,5 +276,4 @@ int main(int argc, char *argv[]){
         out_file << fixed << setprecision(3) << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].vx << " " << asteroides[i].vy << " "  << asteroides[i].masa << endl;
     }
     out_file.close();
-
 }
