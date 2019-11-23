@@ -3,6 +3,8 @@
 \usepackage[spanish]{babel}
 \usepackage{listings}
 \usepackage{graphicx}
+\usepackage{ragged2e}
+\usepackage{enumitem}
 \graphicspath{ {./images/} }
 
 \newcommand\blankpage{%
@@ -72,7 +74,9 @@
             \end{enumerate}
         \newpage
         \subsubsection{Pruebas}
-            Tiempo medio por ejecución
+            \begin{center}
+                Tiempo medio por ejecución
+            \end{center}
             \begin{figure}[hbt!]
                 \centering
                 \includegraphics[width=\linewidth]{images/chart.png}
@@ -92,7 +96,9 @@
             \end{center}
             
             \newpage
-            Tiempo medio por iteración
+            \begin{center}
+                Tiempo medio por iteración
+            \end{center}
             \begin{figure}[hbt!]
                 \centering
                 \includegraphics[width=\linewidth]{images/chart2.png}
@@ -134,58 +140,235 @@
                 \item Sistema Operativo $\rightarrow$ ArchLabs Linux x86\_64
                 \item Versión gcc $\rightarrow$ 9.1.0
             \end{enumerate}
+        \newpage
         \subsubsection{Pruebas}
-        %*Ejecutar cada prueba 10 veces y hacer media
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            \begin{enumerate}[label=(\Alph*)]
+            \textbf{\item 1 Hilo} \\
+                \begin{center}
+                    Tiempo medio por ejecución
+                \end{center}
+                \begin{figure}[hbt!]
+                    \centering
+                    \includegraphics[width=\linewidth]{images/chart3.png}
+                \end{figure}
+                
+                \begin{center}
+                    \noindent Asteroides Iteraciones Planetas $\rightarrow$ Tiempo \\
+                    250 50 250 $\rightarrow$ 0,180575 s \\
+                    250 100 250 $\rightarrow$ 0,284047 s \\
+                    250 200 250 $\rightarrow$ 0,311103 s \\
+                    500 50 500 $\rightarrow$ 0,302797 s \\
+                    500 100 500 $\rightarrow$ 0,555442 s \\
+                    500 200 500 $\rightarrow$ 0,879622 s \\
+                    1000 50 1000 $\rightarrow$ 0,858539 s \\
+                    1000 100 1000 $\rightarrow$ 1,455132 s \\
+                    1000 200 1000 $\rightarrow$ 2,350708 s \\
+                \end{center}
+                
+                \newpage
+                \begin{center}
+                    Tiempo medio por iteración
+                \end{center}
+                \begin{figure}[hbt!]
+                    \centering
+                    \includegraphics[width=\linewidth]{images/chart4.png}
+                \end{figure}
+                
+                \begin{center}
+                    \noindent Asteroides Iteraciones Planetas $\rightarrow$ Tiempo \\
+                    250 50 250 $\rightarrow$ 0,003945 s \\
+                    250 100 250 $\rightarrow$ 0,003011 s \\
+                    250 200 250 $\rightarrow$ 0,001845 s \\
+                    500 50 500 $\rightarrow$ 0,007347 s \\
+                    500 100 500 $\rightarrow$ 0,006191 s \\
+                    500 200 500 $\rightarrow$ 0,004118 s \\
+                    1000 50 1000 $\rightarrow$ 0,017104 s \\
+                    1000 100 1000 $\rightarrow$ 0,014474 s \\
+                    1000 200 1000 $\rightarrow$ 0,011547 s \\
+                \end{center}
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            \newpage
+            \textbf{\item 2 Hilos} \\
+                \begin{center}
+                    Tiempo medio por ejecución
+                \end{center}
+                \begin{figure}[hbt!]
+                    \centering
+                    \includegraphics[width=\linewidth]{images/chart5.png}
+                \end{figure}
+                
+                \begin{center}
+                    \noindent Asteroides Iteraciones Planetas $\rightarrow$ Tiempo \\
+                    250 50 250 $\rightarrow$ 0,214386 s \\
+                    250 100 250 $\rightarrow$ 0,265331 s \\
+                    250 200 250 $\rightarrow$ 0,316191 s \\
+                    500 50 500 $\rightarrow$ 0,311678 s \\
+                    500 100 500 $\rightarrow$ 0,616294 s \\
+                    500 200 500 $\rightarrow$ 0,845456 s \\
+                    1000 50 1000 $\rightarrow$ 0,847766 s \\
+                    1000 100 1000 $\rightarrow$ 1,433399 s \\
+                    1000 200 1000 $\rightarrow$ 2,257085 s \\
+                \end{center}
+                
+                \newpage
+                \begin{center}
+                    Tiempo medio por iteración
+                \end{center}
+                \begin{figure}[hbt!]
+                    \centering
+                    \includegraphics[width=\linewidth]{images/chart6.png}
+                \end{figure}
+                
+                \begin{center}
+                    \noindent Asteroides Iteraciones Planetas $\rightarrow$ Tiempo \\
+                    250 50 250 $\rightarrow$ 0,003895 s \\
+                    250 100 250 $\rightarrow$ 0,002594 s \\
+                    250 200 250 $\rightarrow$ 0,001552 s \\
+                    500 50 500 $\rightarrow$ 0,006480 s \\
+                    500 100 500 $\rightarrow$ 0,006113 s \\
+                    500 200 500 $\rightarrow$ 0,004256 s \\
+                    1000 50 1000 $\rightarrow$ 0,017500 s \\
+                    1000 100 1000 $\rightarrow$ 0,014606 s \\
+                    1000 200 1000 $\rightarrow$ 0,012351 s \\
+                \end{center}
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            \newpage
+            \textbf{\item 4 Hilos} \\
+                \begin{center}
+                    Tiempo medio por ejecución
+                \end{center}
+                \begin{figure}[hbt!]
+                    \centering
+                    \includegraphics[width=\linewidth]{images/chart7.png}
+                \end{figure}
+                
+                \begin{center}
+                    \noindent Asteroides Iteraciones Planetas $\rightarrow$ Tiempo \\
+                    250 50 250 $\rightarrow$ 0,193189 s \\
+                    250 100 250 $\rightarrow$ 0,274853 s \\
+                    250 200 250 $\rightarrow$ 0,318508 s \\
+                    500 50 500 $\rightarrow$ 0,310930 s \\
+                    500 100 500 $\rightarrow$ 0,620252 s \\
+                    500 200 500 $\rightarrow$ 0,799448 s \\
+                    1000 50 1000 $\rightarrow$ 0,865352 s \\
+                    1000 100 1000 $\rightarrow$ 1,409243 s \\
+                    1000 200 1000 $\rightarrow$ 2,240014 s \\
+                \end{center}
+                
+                \newpage
+                \begin{center}
+                    Tiempo medio por iteración
+                \end{center}
+                \begin{figure}[hbt!]
+                    \centering
+                    \includegraphics[width=\linewidth]{images/chart8.png}
+                \end{figure}
         
-        %Hacer gráfico para tiempos totales,  tiempo por iteración y speedup frente al secuencial
-        
-        %hacer pruebas con:
-        % 250 50 250 hilos=1 -> 0.044498
-        % 250 100 250 hilos=1 -> 0.079059
-        % 250 200 250 hilos=1 -> 0.150651
-        % 500 50 500 hilos=1 -> 0.131904
-        % 500 100 500 hilos=1 -> 0.272588
-        % 500 200 500 hilos=1 -> 0.499199
-        % 1000 50 1000 hilos=1 -> 0.472607
-        % 1000 100 1000 hilos=1 -> 0.933702
-        % 1000 200 1000 hilos=1 -> 1.847097
-        % 250 50 250 hilos=2 -> 0.041529
-        % 250 100 250 hilos=2 -> 0.076938
-        % 250 200 250 hilos=2 -> 0.150257
-        % 500 50 500 hilos=2 -> 0.130009
-        % 500 100 500 hilos=2 -> 0.257015
-        % 500 200 500 hilos=2 -> 0.502154
-        % 1000 50 1000 hilos=2 -> 0.473316
-        % 1000 100 1000 hilos=2 -> 0.936542
-        % 1000 200 1000 hilos=2 -> 1.848288
-        % 250 50 250 hilos=4 -> 0.041888
-        % 250 100 250 hilos=4 -> 0.077940
-        % 250 200 250 hilos=4 -> 0.154155
-        % 500 50 500 hilos=4 -> 0.130781
-        % 500 100 500 hilos=4 -> 0.254137
-        % 500 200 500 hilos=4 -> 0.529965
-        % 1000 50 1000 hilos=4 -> 0.485859
-        % 1000 100 1000 hilos=4 -> 0.958328
-        % 1000 200 1000 hilos=4 -> 1.859079
-        % 250 50 250 hilos=8 -> 0.048327
-        % 250 100 250 hilos=8 -> 0.078501
-        % 250 200 250 hilos=8 -> 0.150397
-        % 500 50 500 hilos=8 -> 0.134796
-        % 500 100 500 hilos=8 -> 0.322849
-        % 500 200 500 hilos=8 -> 0.533728
-        % 1000 50 1000 hilos=8 -> 0.470692
-        % 1000 100 1000 hilos=8 -> 0.934546
-        % 1000 200 1000 hilos=8 -> 1.854695
-        % 250 50 250 hilos=10 -> 0.041668
-        % 250 100 250 hilos=10 -> 0.088714
-        % 250 200 250 hilos=10 -> 0.155013
-        % 500 50 500 hilos=10 -> 0.136155
-        % 500 100 500 hilos=10 -> 0.260209
-        % 500 200 500 hilos=10 -> 0.507888
-        % 1000 50 1000 hilos=10 -> 0.475796
-        % 1000 100 1000 hilos=10 -> 0.940900
-        % 1000 200 1000 hilos=10 -> 1.867191
-        
+                \begin{center}
+                    \noindent Asteroides Iteraciones Planetas $\rightarrow$ Tiempo \\
+                    250 50 250 $\rightarrow$ 0,004806 s \\
+                    250 100 250 $\rightarrow$ 0,002958 s \\
+                    250 200 250 $\rightarrow$ 0,001726 s \\
+                    500 50 500 $\rightarrow$ 0,007775 s \\
+                    500 100 500 $\rightarrow$ 0,006353 s \\
+                    500 200 500 $\rightarrow$ 0,004192 s \\
+                    1000 50 1000 $\rightarrow$ 0,017124 s \\
+                    1000 100 1000 $\rightarrow$ 0,014494 s \\
+                    1000 200 1000 $\rightarrow$ 0,011515 s \\
+                \end{center}
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            \newpage
+            \textbf{\item 8 Hilos} \\
+                \begin{center}
+                    Tiempo medio por ejecución
+                \end{center}
+                \begin{figure}[hbt!]
+                    \centering
+                    \includegraphics[width=\linewidth]{images/chart9.png}
+                \end{figure}
+            
+                \begin{center}
+                    \noindent Asteroides Iteraciones Planetas $\rightarrow$ Tiempo \\
+                    250 50 250 $\rightarrow$ 0,171475 s \\
+                    250 100 250 $\rightarrow$ 0,301419 s \\
+                    250 200 250 $\rightarrow$ 0,295236 s \\
+                    500 50 500 $\rightarrow$ 0,286413 s \\
+                    500 100 500 $\rightarrow$ 0,613443 s \\
+                    500 200 500 $\rightarrow$ 0,807911 s \\
+                    1000 50 1000 $\rightarrow$ 0,864070 s \\
+                    1000 100 1000 $\rightarrow$ 1,402799 s \\
+                    1000 200 1000 $\rightarrow$ 2,236456 s \\
+                \end{center}
+                
+                \newpage
+                \begin{center}
+                    Tiempo medio por iteración
+                \end{center}
+                \begin{figure}[hbt!]
+                    \centering
+                    \includegraphics[width=\linewidth]{images/chart10.png}
+                \end{figure}
+                
+                \begin{center}
+                    \noindent Asteroides Iteraciones Planetas $\rightarrow$ Tiempo \\
+                    250 50 250 $\rightarrow$ 0,003909 s \\
+                    250 100 250 $\rightarrow$ 0,002746 s \\
+                    250 200 250 $\rightarrow$ 0,001585 s \\
+                    500 50 500 $\rightarrow$ 0,006330 s \\
+                    500 100 500 $\rightarrow$ 0,006457 s \\
+                    500 200 500 $\rightarrow$ 0,004158 s \\
+                    1000 50 1000 $\rightarrow$ 0,017536 s \\
+                    1000 100 1000 $\rightarrow$ 0,014151 s \\
+                    1000 200 1000 $\rightarrow$ 0,011536 s \\
+                \end{center}
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            \newpage
+            \textbf{\item 16 Hilos} \\
+                \begin{center}
+                    Tiempo medio por ejecución
+                \end{center}
+                \begin{figure}[hbt!]
+                    \centering
+                    \includegraphics[width=\linewidth]{images/chart11.png}
+                \end{figure}
+                
+                \begin{center}
+                    \noindent Asteroides Iteraciones Planetas $\rightarrow$ Tiempo \\
+                    250 50 250 $\rightarrow$ 0,182035 s \\
+                    250 100 250 $\rightarrow$ 0,279373 s \\
+                    250 200 250 $\rightarrow$ 0,296924 s \\
+                    500 50 500 $\rightarrow$ 0,311823 s \\
+                    500 100 500 $\rightarrow$ 0,609455 s \\
+                    500 200 500 $\rightarrow$ 0,824987 s \\
+                    1000 50 1000 $\rightarrow$ 0,872044 s \\
+                    1000 100 1000 $\rightarrow$ 1,398234 s \\
+                    1000 200 1000 $\rightarrow$ 2,242337 s \\
+                \end{center}
+                
+                \newpage
+                \begin{center}
+                    Tiempo medio por iteración
+                \end{center}
+                \begin{figure}[hbt!]
+                    \centering
+                    \includegraphics[width=\linewidth]{images/chart12.png}
+                \end{figure}
+                
+                \begin{center}
+                    \noindent Asteroides Iteraciones Planetas $\rightarrow$ Tiempo \\
+                    250 50 250 $\rightarrow$ 0,003431 s \\
+                    250 100 250 $\rightarrow$ 0,002873 s \\
+                    250 200 250 $\rightarrow$ 0,001578 s \\
+                    500 50 500 $\rightarrow$ 0,006201 s \\
+                    500 100 500 $\rightarrow$ 0,006298 s \\
+                    500 200 500 $\rightarrow$ 0,004273 s \\
+                    1000 50 1000 $\rightarrow$ 0,017563 s \\
+                    1000 100 1000 $\rightarrow$ 0,014203 s \\
+                    1000 200 1000 $\rightarrow$ 0,011497 s \\
+                \end{center}
+            \end{enumerate}
+        \newpage
         \subsubsection{Análisis de resultados}
         \subsubsection{Impacto de la planificación}
         %Hacer un análisis con las diferencias de:
