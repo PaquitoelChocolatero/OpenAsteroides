@@ -99,7 +99,7 @@ void escribirInit(int num_asteroides, int num_planetas, int num_iteraciones, int
 int main(int argc, char *argv[]){
     // Leer argumentos 
     int num_asteroides = 0, num_planetas = 0, num_iteraciones = 0, semilla = 0;
-    if (argc<5){
+    if (argc!=5){
         cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"./nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
         return -1;
     }else{
@@ -292,7 +292,7 @@ int main(int argc, char *argv[]){
     // cout << it << endl;
 
     //Escribimos el resultado final
-    ofstream out_file("output.txt");
+    ofstream out_file("out.txt");
 
     for (int j=0; j<num_asteroides; ++j){
         out_file << fixed << setprecision(3) << asteroides[j].posx << " " << asteroides[j].posy << " " << asteroides[j].vx << " " << asteroides[j].vy << " "  << asteroides[j].masa << endl;

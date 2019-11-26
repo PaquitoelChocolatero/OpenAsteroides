@@ -3,9 +3,7 @@
 #include <random>
 #include <iomanip>
 #include <fstream>
-#include <omp.h>
 #include <chrono>
-
 using namespace std;
 
 #define tiempo 0.1
@@ -15,7 +13,6 @@ using namespace std;
 #define m 1000
 #define sdm 50
 #define G 6.674e-5
-#define num_threads 16
 
 typedef struct {
     float x;
@@ -43,12 +40,12 @@ void calculoPosicionInicial(long unsigned int seed, int num_asteroides, int num_
     uniform_real_distribution<double> ydist{0.0, std::nextafter(height,std::numeric_limits<double>::max())};
     normal_distribution<double> mdist{m, sdm};
 
-    for (int j = 0; j<num_asteroides; j++){
-        asteroides[j].posx = xdist(re);
-        asteroides[j].posy = ydist(re);
-        asteroides[j].masa = mdist(re);
-        asteroides[j].vx = 0;
-        asteroides[j].vy = 0;        
+    for (int i = 0; i<num_asteroides; i++){
+        asteroides[i].posx = xdist(re);
+        asteroides[i].posy = ydist(re);
+        asteroides[i].masa = mdist(re);
+        asteroides[i].vx = 0;
+        asteroides[i].vy = 0;        
     }
     float masa;
     for (int i=0; i<num_planetas; i++){
@@ -94,12 +91,13 @@ void escribirInit(int num_asteroides, int num_planetas, int num_iteraciones, int
        init_file << fixed << setprecision(3) << planetas[i].posx << " " << planetas[i].posy << " " << planetas[i].masa << endl;
     }
     init_file.close();
+
 }
 
 int main(int argc, char *argv[]){
     // Leer argumentos 
     int num_asteroides = 0, num_planetas = 0, num_iteraciones = 0, semilla = 0;
-    if (argc<5){
+    if (argc!=5){
         cout << "nasteroids-seq: Wrong arguments."<< endl <<"Correct use:"<< endl <<"./nasteroids-seq num_asteroides num_iteraciones num_planetas semilla"<<endl;
         return -1;
     }else{
@@ -120,110 +118,92 @@ int main(int argc, char *argv[]){
     escribirInit(num_asteroides, num_planetas, num_iteraciones, semilla, planetas, asteroides );
     
     //Reloj
-    auto start=chrono::high_resolution_clock::now();
-    // chrono::duration<double> elapsed;
-    // double it = 0;
-    
+    //auto start=chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsed;
+    double it = 0;
+
     //Para cada iteracion
-    for (int i = 0; i< num_iteraciones; ++i){        
- 
-        // auto start=chrono::high_resolution_clock::now();
-        
+    for (int i = 0; i< num_iteraciones; ++i){
+
+        auto start=chrono::high_resolution_clock::now();
+
         //Para cada asteroide calculamos la atraccion con el resto de elementos
-        #pragma omp parallel for
         for (int j = 0; j<num_asteroides; ++j){
-            
-            #pragma omp parallel sections
-            {
-                #pragma omp section
-                {
-                    // Para los elementos de tipo asteroide cuya atraccion no ha sido calculada aun (k = j+1)
-                    float fuerzax=0, fuerzay=0;
-                    #pragma omp parallel for
-                    for (int k = 0; k<num_asteroides; ++k ){
-                        if(k==j){
-                            continue;
-                        }
-                        // Calculamos la distancia en modulo
-                        float distancia=sqrt( pow( (asteroides[j].posx-asteroides[k].posx),2)+pow((asteroides[j].posx-asteroides[k].posx), 2) );
-                        // Si la distancia es mayor que la distancia de rebote
-                        if (distancia > dmin){
-                            // Calculamos la pendiente
-                            float pendiente=(asteroides[j].posy-asteroides[k].posy)/(asteroides[j].posx - asteroides[k].posx);
-                            // Truncamos si es mayor que 1 o menor que -1
-                            if(pendiente>1){
-                                pendiente=1;
-                            }else if(pendiente<-1){
-                                pendiente=-1;
-                            }
-                            //Calculamos el angulo
-                            float alpha = atan(pendiente);
-
-                            if(k>j){
-                                fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha);
-                                fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha);
-                            }
-                            else{
-                                //En otro caso significa que k es menor que j y la fuerza sobre j tendra sentido negativo
-                                fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha)*-1;
-                                fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha)*-1;
-                            }
-                            //En cualquier caso la fuerza sobre k sera calculada mas adelante    
-                            
-                            // La fuerza tiene el mismo valor pero sentido contrario para cada uno
-                            Fuerza fuerzaj = {fuerzax, fuerzay};
-
-                            // La añadimos al vector de fuerza de cada uno    
-                            asteroides[j].fuerzas.push_back(fuerzaj);
-                        }
-                    }
+            float fuerzax=0, fuerzay=0;
+            //Declaramos un vector donde alamacenar las fuerzas
+            //vector<Fuerza> sumatorio_fuerzas;
+            // Para los elementos de tipo asteroide cuya atraccion no ha sido calculada aun (k = j+1)
+            for (int k = 0; k<num_asteroides; ++k ){
+                 if(k==j){
+                    continue;
                 }
-                #pragma omp section
-                {
-                    float fuerzax, fuerzay;
-                    //Fuerza del planeta k sobre el asteroide j
-                    #pragma omp parallel for
-                    for (int k = 0; k < num_planetas; ++k){
-                        // Calculamos la distancia en modulo
-                        float distancia=sqrt( pow( (asteroides[j].posx-planetas[k].posx),2)+pow((asteroides[j].posx-planetas[k].posx), 2) );
-                        // Si la distancia es mayor que la distancia de rebote
-                        if (distancia > dmin){
-                            // Calculamos la pendiente
-                            float pendiente=(asteroides[j].posy-planetas[k].posy)/(asteroides[j].posx - planetas[k].posx);
-                            // Truncamos si es mayor que 1 o menor que -1
-                            if(pendiente>1){
-                                pendiente=1;
-                            }else if(pendiente<-1){
-                                pendiente=-1;
-                            }
-                            //Calculamos el angulo
-                            float alpha = atan(pendiente);
-
-                            //Calculamos la fuerza entre ambos
-                            fuerzax = (G*asteroides[j].masa*planetas[k].masa)/(distancia*distancia)*cos(alpha);
-                            fuerzay = (G*asteroides[j].masa*planetas[k].masa)/(distancia*distancia)*sin(alpha);
-                            
-                            // La fuerza tiene el mismo valor pero sentido contrario para cada uno
-                            Fuerza fuerzaj = {fuerzax, fuerzay};
-                            
-                            //Seccion critica
-                            asteroides[j].fuerzas.push_back(fuerzaj);
-                        }
+                // Calculamos la distancia en modulo
+                float distancia=sqrt( pow( (asteroides[j].posx-asteroides[k].posx),2)+pow((asteroides[j].posx-asteroides[k].posx), 2) );
+                // Si la distancia es mayor que la distancia de rebote
+                if (distancia > dmin){
+                    // Calculamos la pendiente
+                    float pendiente=(asteroides[j].posy-asteroides[k].posy)/(asteroides[j].posx - asteroides[k].posx);
+                    // Truncamos si es mayor que 1 o menor que -1
+                    if(pendiente>1){
+                        pendiente=1;
+                    }else if(pendiente<-1){
+                        pendiente=-1;
                     }
+                    //Calculamos el angulo
+                    float alpha = atan(pendiente);
+
+                    if(k>j){
+                        fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha);
+                        fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha);
+                    }
+                    else{
+                        //En otro caso significa que k es menor que j y la fuerza sobre j tendra sentido negativo
+                        fuerzax = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*cos(alpha)*-1;
+                        fuerzay = (G*asteroides[j].masa*asteroides[k].masa)/(distancia*distancia)*sin(alpha)*-1;
+                    }
+                    //En cualquier caso la fuerza sobre k sera calculada mas adelante    
+                    
+                    // La fuerza tiene el mismo valor pero sentido contrario para cada uno
+                    Fuerza fuerzaj = {fuerzax, fuerzay};
+
+                    // La añadimos al vector de fuerza de cada uno    
+                    asteroides[j].fuerzas.push_back(fuerzaj);
                 }
-            }           
+            }
+            for (int k = 0; k < num_planetas; ++k){
+                // Calculamos la distancia en modulo
+                float distancia=sqrt( pow( (asteroides[j].posx-planetas[k].posx),2)+pow((asteroides[j].posx-planetas[k].posx), 2) );
+                // Si la distancia es mayor que la distancia de rebote
+                if (distancia > dmin){
+                    // Calculamos la pendiente
+                    float pendiente=(asteroides[j].posy-planetas[k].posy)/(asteroides[j].posx - planetas[k].posx);
+                    // Truncamos si es mayor que 1 o menor que -1
+                    if(pendiente>1){
+                        pendiente=1;
+                    }else if(pendiente<-1){
+                        pendiente=-1;
+                    }
+                    //Calculamos el angulo
+                    float alpha = atan(pendiente);
+
+                    //Calculamos la fuerza entre ambos
+                    float fuerzax = (G*asteroides[j].masa*planetas[k].masa)/(distancia*distancia)*cos(alpha);
+                    float fuerzay = (G*asteroides[j].masa*planetas[k].masa)/(distancia*distancia)*sin(alpha);
+                    
+                    // La fuerza tiene el mismo valor pero sentido contrario para cada uno
+                    Fuerza fuerzaj = {fuerzax, fuerzay};
+
+                    asteroides[j].fuerzas.push_back(fuerzaj);
+                }
+            }
         }
-
-        // Calculo de la fuerza, la aceleracion, y la velocidad        
-        #pragma omp parallel for
+        
+        // Para cada asteroide calcularemos su fuerza, su aceleracion y velocidad
         for (int j = 0; j< num_asteroides; ++j) {            
             //Obtenemos el sumatorio de las fuerzas
             float sum_fuerzax = 0, sum_fuerzay = 0;
-            //#pragma omp parallel for
             for (auto fuerza : asteroides[j].fuerzas){
-                #pragma omp atomic
                 sum_fuerzax += fuerza.x;
-                #pragma omp atomic
                 sum_fuerzay += fuerza.y; 
             }
             //Calculamos la aceleracion
@@ -239,7 +219,6 @@ int main(int argc, char *argv[]){
         }
 
         //Modificamos la posicion
-        #pragma omp parallel for
         for(int j=0; j<num_asteroides; j++){
             asteroides[j].posx += asteroides[j].vx * tiempo; 
             asteroides[j].posy += asteroides[j].vy * tiempo;
@@ -259,7 +238,6 @@ int main(int argc, char *argv[]){
                 asteroides[j].vy *= -1;
             }
         }
-        
         //Rebotes entre asteroides 
         for (int j = 0; j< num_asteroides; ++j) {
             for (int k = j+1; k < num_asteroides; ++k){
@@ -279,23 +257,23 @@ int main(int argc, char *argv[]){
                 }
             }
         }
-        // auto end=chrono::high_resolution_clock::now();
-        // elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);  
-        // it += elapsed.count();  
+        auto end=chrono::high_resolution_clock::now();
+        elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);  
+        it += elapsed.count();                
     }
 
-    auto end=chrono::high_resolution_clock::now();
-    chrono::duration<double> elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);
-    cout << elapsed.count() <<endl;
+    // auto end=chrono::high_resolution_clock::now();
+    // chrono::duration<double> elapsed = chrono::duration_cast<chrono::duration<double>>(end-start);
+    // cout << elapsed.count() <<endl;
 
-    // it /= num_iteraciones;
-    // cout << it << endl;
-
+    it /= num_iteraciones;
+    cout << it << endl;
+   
     //Escribimos el resultado final
-    ofstream out_file("output.txt");
+    ofstream out_file("out.txt");
 
-    for (int j=0; j<num_asteroides; ++j){
-        out_file << fixed << setprecision(3) << asteroides[j].posx << " " << asteroides[j].posy << " " << asteroides[j].vx << " " << asteroides[j].vy << " "  << asteroides[j].masa << endl;
+    for (int i=0; i<num_asteroides; ++i){
+        out_file << fixed << setprecision(3) << asteroides[i].posx << " " << asteroides[i].posy << " " << asteroides[i].vx << " " << asteroides[i].vy << " "  << asteroides[i].masa << endl;
     }
     out_file.close();
 }
